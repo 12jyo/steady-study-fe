@@ -41,7 +41,7 @@ export default function AdminDashboard() {
     const handleBatchesClick = () => navigate("/admin/batches");
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="">
             <Navbar
                 onDashboardClick={handleDashboardClick}
                 onStudentsClick={handleStudentsClick}

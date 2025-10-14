@@ -1,0 +1,65 @@
+.students-table {
+    border: 1px solid #8a7f7f;
+    padding: 1rem;
+    border-radius: 1rem;
+
+    table{
+        thead{
+
+            tr {
+                border-bottom: 1px solid #e0d4d4;
+                margin-bottom: 1rem;
+            }
+        }
+    }
+
+}
+
+.reset-pwd-btn {
+    border: none;
+    background: none;
+    white-space: nowrap;
+    font-size: 0.875rem;
+    cursor: pointer;
+    font-weight: 500;
+    color: #2563EB;
+}
+
+.edit-btn {
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.assign-btn {
+    background: none;
+    border: none;
+    white-space: nowrap;
+    font-size: 0.875rem;
+    gap: 9px;
+    cursor: pointer;
+    font-weight: 500;
+    color: #2563EB;
+}
+
+.add-student-btn{
+    height: 2.5rem;
+  padding-left: 1rem;          
+  padding-right: 1rem;         
+  font-size: 0.875rem;        
+  line-height: 1.25rem;        
+  font-weight: 700;            
+  color: #ffffff;              
+  background-color: #2563EB;  
+  border-radius: 0.5rem;       
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
+}
+
+
+.add-student-btn:hover {
+  background-color: rgba(37, 99, 235, 0.9);
+  cursor: pointer;
+}

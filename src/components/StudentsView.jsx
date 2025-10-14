@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import Navbar from "./Navbar";
 import API from "../api/api";
 import { FaUserPlus } from "react-icons/fa";
+import '../../src/App.css'
+import '../styles/StudentsView.css'
+import { MdEdit } from "react-icons/md";
 
 export default function StudentsView() {
     const [students, setStudents] = useState([]);
@@ -46,7 +49,7 @@ export default function StudentsView() {
     const handleAddStudent = async (e) => {
         e.preventDefault();
         if (!name.trim() || !email.trim())
-            return alert("⚠️ Please enter both name and email.");
+            return alert("Please enter both name and email.");
 
         try {
             const token = localStorage.getItem("token");
@@ -197,11 +200,11 @@ export default function StudentsView() {
         <>
             <Navbar />
 
-            <div className="p-6">
+            <div className="content-container">
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-2xl font-bold">Students</h2>
                     <button
-                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+                        className="add-student-btn"
                         onClick={() => setShowAddModal(true)}
                     >
                         Add Student
@@ -211,7 +214,7 @@ export default function StudentsView() {
                 {loading ? (
                     <p>Loading students...</p>
                 ) : (
-                    <div className="overflow-x-auto bg-white rounded-lg shadow-sm">
+                    <div className="students-table">
                         <table className="w-full text-sm text-left">
                             <thead className="bg-gray-100 text-gray-600 uppercase text-xs">
                                 <tr>
@@ -219,7 +222,7 @@ export default function StudentsView() {
                                     <th className="px-4 py-3">Email</th>
                                     <th className="px-4 py-3">Device Access</th>
                                     <th className="px-4 py-3">Batch Assignment</th>
-                                    <th className="px-4 py-3 text-right">Actions</th>
+                                    <th className="px-4 py-3">Actions</th>
                                 </tr>
                             </thead>
 
@@ -254,16 +257,17 @@ export default function StudentsView() {
                                                     </button>
                                                 </div>
                                             ) : (
-                                                <div className="flex items-center justify-between">
+                                                <div className="flex items-center justify-start gap-[1rem]">
                                                     <span>{s.deviceLimit}</span>
                                                     <button
-                                                        className="text-blue-600 text-xs font-medium hover:underline"
+                                                        className="edit-btn"
                                                         onClick={() => {
                                                             setEditingId(s._id);
                                                             setNewDeviceLimit(s.deviceLimit);
                                                         }}
                                                     >
-                                                        Edit
+                                                        <MdEdit size={20} className="text-gray-600 hover:text-blue-600 transition-colors" />
+
                                                     </button>
                                                 </div>
                                             )}
@@ -271,21 +275,21 @@ export default function StudentsView() {
 
                                         <td className="px-4 py-3">
                                             <button
-                                                className="flex items-center gap-1 text-blue-600 font-medium hover:underline"
+                                                className="flex items-center gap-1 text-blue-600 font-medium assign-btn"
                                                 onClick={() => handleAssignClick(s)}
                                             >
-                                                <FaUserPlus className="text-blue-500" /> Assign
+                                                <FaUserPlus className="text-blue-500" /> Assign Batches
                                             </button>
-                                            {s.batchIds?.length > 0 && (
+                                            {/* {s.batchIds?.length > 0 && (
                                                 <p className="text-xs text-gray-500 mt-1">
                                                     {s.batchIds.map((b) => b.title).join(", ")}
                                                 </p>
-                                            )}
+                                            )} */}
                                         </td>
 
-                                        <td className="px-4 py-3 text-right">
+                                        <td className="text-left">
                                             <button
-                                                className="text-blue-600 font-semibold hover:underline"
+                                                className="reset-pwd-btn"
                                                 onClick={() => handleResetPassword(s._id, s.email)}
                                             >
                                                 Reset Password

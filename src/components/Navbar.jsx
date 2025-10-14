@@ -1,4 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
+import '../styles/navbar.css';
+import { RiLogoutBoxRLine } from "react-icons/ri";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -11,38 +13,37 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="flex justify-between items-center bg-white px-8 py-4 shadow-sm">
-      <div className="text-xl font-semibold text-blue-700">
+    <nav className="flex justify-between items-center navbar">
+      <div className="logo">
         Steady-Study-8
       </div>
 
-      <div className="flex items-center space-x-6">
+      <div className="flex items-center gap-[3rem] text-[1.2rem]">
         <Link
           to="/dashboard"
-          className="text-gray-700 hover:text-blue-700 font-medium"
+          className="nav-item"
         >
           Dashboard
         </Link>
         <Link
           to="/students"
-          className="text-gray-700 hover:text-blue-700 font-medium"
+          className="nav-item"
         >
           Students
         </Link>
         <Link
           to="/batches"
-          className="text-gray-700 hover:text-blue-700 font-medium border border-gray-300 px-3 py-1 rounded hover:bg-blue-50"
+          className="nav-item"
         >
           Batches
         </Link>
-
-        <button
-          onClick={handleLogout}
-          className="bg-red-600 text-white font-medium px-4 py-1.5 rounded hover:bg-red-700 transition"
-        >
-          Logout
-        </button>
       </div>
+      <button
+        onClick={handleLogout}
+        className="bg-red-600 text-white font-medium px-4 py-1.5 rounded hover:bg-red-700 transition"
+      >
+        <RiLogoutBoxRLine size={20} />
+      </button>
     </nav>
   );
 }

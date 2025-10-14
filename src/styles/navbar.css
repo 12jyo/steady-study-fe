@@ -10,8 +10,32 @@
     padding-bottom: 1rem;
 }
 
+.navbar {
+    margin: 2rem 1rem;
+    border-bottom: 1px dotted #c1b6b6;
+    padding-bottom: 1rem;
+}
+
+.logo {
+    font-size: 1.125rem; /* 18px */
+  line-height: 1.75rem; /* 28px */
+  font-weight: 700; /* bold */
+}
+
 .nav-items {
     gap: 2rem;
     align-items: center;
     display: flex;
+}
+
+.nav-item {
+    color: #6B7280;;
+    transition-property: color;
+    transition-duration: 150ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+}
+
+.nav-item:hover {
+    color: #2563EB;
 }

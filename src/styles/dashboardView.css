@@ -1,0 +1,23 @@
+.card {
+    display: flex;
+    border: 1px solid #e0d4d4;
+    width: 35%;
+    justify-content: flex-start;
+    border-radius: 1rem;
+    height: 5rem;
+    padding: 2rem;
+    gap: 1rem;
+    align-items: center;
+    background: white;
+}
+
+.icon {
+    font-size: 2rem;
+    color: #616192;
+}
+
+.card-icon {
+    background: #d4e5f1;
+    padding: 1rem;
+    border-radius: 50%;
+}
