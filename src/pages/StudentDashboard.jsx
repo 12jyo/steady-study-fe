@@ -1,9 +1,13 @@
 import { useEffect, useState } from "react";
+import Modal from "../components/Modal";
 import API from "../api/api";
 import { useNavigate } from "react-router-dom";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/TextLayer.css";
 import "react-pdf/dist/Page/AnnotationLayer.css";
+import { AiOutlineLogout } from "react-icons/ai";
+import { Tooltip } from "@mui/material";
+import '../../src/App.css'
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -61,11 +65,14 @@ export default function StudentDashboard() {
             });
     }, [navigate]);
 
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
     const handleLogout = () => {
-        if (window.confirm("Are you sure you want to logout?")) {
-            localStorage.removeItem("token");
-            navigate("/");
-        }
+        setShowLogoutModal(true);
+    };
+    const confirmLogout = () => {
+        localStorage.removeItem("token");
+        setShowLogoutModal(false);
+        navigate("/");
     };
 
     // PDF controls
@@ -93,12 +100,25 @@ export default function StudentDashboard() {
         <div className="min-h-screen bg-gray-50 select-none">
             <div className="flex justify-between items-center bg-white shadow p-4">
                 <h2 className="text-xl font-bold text-gray-800">Student Dashboard</h2>
-                <button
-                    onClick={handleLogout}
-                    className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-                >
-                    Logout
-                </button>
+                <Tooltip title="Logout" arrow>
+                  <button
+                      onClick={handleLogout}
+                      className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                  >
+                      <AiOutlineLogout size={20} />
+                  </button>
+                </Tooltip>
+                {showLogoutModal && (
+                    <Modal
+                        open={showLogoutModal}
+                        title="Logout Confirmation"
+                        content={<div>Are you sure you want to logout?</div>}
+                        onSave={confirmLogout}
+                        onCancel={() => setShowLogoutModal(false)}
+                        saveText="Logout"
+                        cancelText="Cancel"
+                    />
+                )}
             </div>
 
             <div className="p-8">

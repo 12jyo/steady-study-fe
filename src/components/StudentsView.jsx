@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import Navbar from "./Navbar";
+import Modal from "./Modal";
 import API from "../api/api";
 import { FaUserPlus } from "react-icons/fa";
 import '../../src/App.css'
 import '../styles/StudentsView.css'
 import { MdEdit } from "react-icons/md";
+import { toast } from "react-toastify";
+import { Tooltip } from "@mui/material";
 
 export default function StudentsView() {
     const [students, setStudents] = useState([]);
@@ -49,7 +52,7 @@ export default function StudentsView() {
     const handleAddStudent = async (e) => {
         e.preventDefault();
         if (!name.trim() || !email.trim())
-            return alert("Please enter both name and email.");
+            return toast.error("Please enter both name and email.");
 
         try {
             const token = localStorage.getItem("token");
@@ -71,7 +74,7 @@ export default function StudentsView() {
             a.click();
             window.URL.revokeObjectURL(url);
 
-            alert("Student added successfully! CSV downloaded.");
+            toast.success("Student added successfully! CSV downloaded.");
             setName("");
             setEmail("");
             setShowAddModal(false);
@@ -80,7 +83,7 @@ export default function StudentsView() {
             await fetchStudentsAndBatches();
         } catch (err) {
             console.error(err);
-            alert(err.response?.data?.message || "❌ Error adding student");
+            toast.error(err.response?.data?.message || "❌ Error adding student");
         }
     };
 
@@ -105,10 +108,10 @@ export default function StudentsView() {
             a.click();
             window.URL.revokeObjectURL(url);
 
-            alert(`Password reset for ${email} — CSV downloaded.`);
+            toast.success(`Password reset for ${email} — CSV downloaded.`);
         } catch (err) {
             console.error("Reset password error:", err);
-            alert(
+            toast.error(
                 err.response?.data?.message || "Error resetting password. Try again."
             );
         }
@@ -171,7 +174,7 @@ export default function StudentsView() {
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
-            alert("Batches assigned successfully!");
+            toast.success("Batches assigned successfully!");
 
             setStudents((prev) =>
                 prev.map((s) =>
@@ -189,7 +192,7 @@ export default function StudentsView() {
             setShowBatchModal(false);
         } catch (err) {
             console.error("Batch assignment error:", err);
-            alert(
+            toast.error(
                 err.response?.data?.message ||
                 "Error assigning batches. Please try again."
             );
@@ -214,13 +217,13 @@ export default function StudentsView() {
                 {loading ? (
                     <p>Loading students...</p>
                 ) : (
-                    <div className="students-table">
+                    <div className="table-container">
                         <table className="w-full text-sm text-left">
                             <thead className="bg-gray-100 text-gray-600 uppercase text-xs">
-                                <tr>
+    <tr style={{ backgroundColor: "#f9f9f9", color: "#333", fontWeight: "bold" }}>
                                     <th className="px-4 py-3">Name</th>
                                     <th className="px-4 py-3">Email</th>
-                                    <th className="px-4 py-3">Device Access</th>
+                                    <th className="px-4 py-3">No. of Device Access</th>
                                     <th className="px-4 py-3">Batch Assignment</th>
                                     <th className="px-4 py-3">Actions</th>
                                 </tr>
@@ -228,11 +231,11 @@ export default function StudentsView() {
 
                             <tbody>
                                 {students.map((s) => (
-                                    <tr key={s._id} className="border-t hover:bg-gray-50">
+                                    <tr key={s._id} className="border-t hover:bg-gray-50 border-t border-black">
                                         <td className="px-4 py-3">{s.name}</td>
                                         <td className="px-4 py-3">{s.email}</td>
 
-                                        <td className="px-4 py-3">
+                                        <td className="px-4 py-3 text-center">
                                             {editingId === s._id ? (
                                                 <div className="flex items-center gap-2">
                                                     <input
@@ -259,16 +262,18 @@ export default function StudentsView() {
                                             ) : (
                                                 <div className="flex items-center justify-start gap-[1rem]">
                                                     <span>{s.deviceLimit}</span>
-                                                    <button
-                                                        className="edit-btn"
-                                                        onClick={() => {
-                                                            setEditingId(s._id);
-                                                            setNewDeviceLimit(s.deviceLimit);
-                                                        }}
-                                                    >
-                                                        <MdEdit size={20} className="text-gray-600 hover:text-blue-600 transition-colors" />
+                                                    <Tooltip title="Edit No. of Device Access" arrow>
+                                                        <button
+                                                            className="edit-btn"
+                                                            onClick={() => {
+                                                                setEditingId(s._id);
+                                                                setNewDeviceLimit(s.deviceLimit);
+                                                            }}
+                                                        >
+                                                            <MdEdit size={20} className="text-gray-600 hover:text-blue-600 transition-colors" />
 
-                                                    </button>
+                                                        </button>
+                                                    </Tooltip>
                                                 </div>
                                             )}
                                         </td>
@@ -315,10 +320,11 @@ export default function StudentsView() {
             </div>
 
             {showAddModal && (
-                <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
-                    <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-                        <h3 className="text-lg font-semibold mb-4">Add New Student</h3>
-                        <form onSubmit={handleAddStudent} className="space-y-3">
+                <Modal
+                    open={showAddModal}
+                    title="Add New Student"
+                    content={
+                        <form id="add-student-form" onSubmit={handleAddStudent} className="flex gap-[1rem] flex-col">
                             <input
                                 type="text"
                                 placeholder="Full Name"
@@ -335,62 +341,40 @@ export default function StudentsView() {
                                 className="border p-2 w-full rounded"
                                 required
                             />
-
-                            <div className="flex justify-end space-x-2 mt-4">
-                                <button
-                                    type="button"
-                                    onClick={() => setShowAddModal(false)}
-                                    className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                                >
-                                    Generate CSV
-                                </button>
-                            </div>
                         </form>
-                    </div>
-                </div>
+                    }
+                    onSave={() => document.getElementById('add-student-form').requestSubmit()}
+                    onCancel={() => setShowAddModal(false)}
+                    saveText="Generate CSV"
+                    cancelText="Cancel"
+                />
             )}
 
             {showBatchModal && (
-                <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
-                    <div className="bg-white p-6 rounded-lg shadow-lg w-96 max-h-[80vh] overflow-auto">
-                        <h3 className="text-lg font-semibold mb-4">
-                            Assign Batches for {selectedStudent?.name}
-                        </h3>
-                        <div className="space-y-2">
-                            {batches.map((batch) => (
-                                <label key={batch._id} className="flex items-center gap-2">
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedBatches.includes(batch._id)}
-                                        onChange={() => handleBatchToggle(batch._id)}
-                                    />
-                                    {batch.title}
-                                </label>
-                            ))}
-                        </div>
-                        <div className="flex justify-end gap-2 mt-6">
-                            <button
-                                onClick={() => setShowBatchModal(false)}
-                                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleSaveBatches}
-                                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-60"
-                                disabled={selectedBatches.length === 0}
-                            >
-                                Save
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <Modal
+                    open={showBatchModal}
+                    title={`Assign Batches for ${selectedStudent?.name || ''}`}
+                    content={
+                        <form id="assign-batch-form" onSubmit={e => { e.preventDefault(); handleSaveBatches(); }}>
+                            <div className="space-y-2">
+                                {batches.map((batch) => (
+                                    <label key={batch._id} className="flex items-center gap-2">
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedBatches.includes(batch._id)}
+                                            onChange={() => handleBatchToggle(batch._id)}
+                                        />
+                                        {batch.title}
+                                    </label>
+                                ))}
+                            </div>
+                        </form>
+                    }
+                    onSave={() => handleSaveBatches()}
+                    onCancel={() => setShowBatchModal(false)}
+                    saveText="Save"
+                    cancelText="Cancel"
+                />
             )}
         </>
     );

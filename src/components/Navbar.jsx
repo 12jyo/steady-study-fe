@@ -1,49 +1,80 @@
-import { Link, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import '../styles/navbar.css';
-import { RiLogoutBoxRLine } from "react-icons/ri";
+import Modal from "./Modal";
+import { useState } from "react";
+import { AiOutlineLogout } from "react-icons/ai";
+import { Tooltip } from "@mui/material";
+import '../../src/App.css';
+import { SiStudyverse } from "react-icons/si";
 
 export default function Navbar() {
   const navigate = useNavigate();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const handleLogout = () => {
-    if (window.confirm("Are you sure you want to logout?")) {
-      localStorage.removeItem("token");
-      navigate("/");
-    }
+    setShowLogoutModal(true);
+  };
+
+  const confirmLogout = () => {
+    localStorage.removeItem("token");
+    setShowLogoutModal(false);
+    navigate("/");
   };
 
   return (
-    <nav className="flex justify-between items-center navbar">
-      <div className="logo">
-        Steady-Study-8
-      </div>
+    <>
+      <nav className="flex justify-between items-center navbar">
+        <div className="logo">
+          <SiStudyverse />
+          Steady-Study-8
+        </div>
 
-      <div className="flex items-center gap-[3rem] text-[1.2rem]">
-        <Link
-          to="/dashboard"
-          className="nav-item"
-        >
-          Dashboard
-        </Link>
-        <Link
-          to="/students"
-          className="nav-item"
-        >
-          Students
-        </Link>
-        <Link
-          to="/batches"
-          className="nav-item"
-        >
-          Batches
-        </Link>
-      </div>
-      <button
-        onClick={handleLogout}
-        className="bg-red-600 text-white font-medium px-4 py-1.5 rounded hover:bg-red-700 transition"
-      >
-        <RiLogoutBoxRLine size={20} />
-      </button>
-    </nav>
+        <div className="flex items-center gap-[3rem] text-[1.2rem]">
+          <NavLink
+            to="/dashboard"
+            className={({ isActive }) =>
+              isActive ? "nav-item active-nav-item" : "nav-item"
+            }
+          >
+            Dashboard
+          </NavLink>
+          <NavLink
+            to="/students"
+            className={({ isActive }) =>
+              isActive ? "nav-item active-nav-item" : "nav-item"
+            }
+          >
+            Students
+          </NavLink>
+          <NavLink
+            to="/batches"
+            className={({ isActive }) =>
+              isActive ? "nav-item active-nav-item" : "nav-item"
+            }
+          >
+            Batches
+          </NavLink>
+        </div>
+        <Tooltip title="Logout" arrow>
+          <button
+            onClick={handleLogout}
+            className="logout"
+          >
+            <AiOutlineLogout size={20} />
+          </button>
+        </Tooltip>
+      </nav>
+      {showLogoutModal && (
+        <Modal
+          open={showLogoutModal}
+          title="Logout Confirmation"
+          content={<div>Are you sure you want to logout?</div>}
+          onSave={confirmLogout}
+          onCancel={() => setShowLogoutModal(false)}
+          saveText="Logout"
+          cancelText="Cancel"
+        />
+      )}
+    </>
   );
 }

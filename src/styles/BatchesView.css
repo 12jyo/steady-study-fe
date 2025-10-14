@@ -1,31 +1,10 @@
-.reset-pwd-btn {
-    border: none;
-    background: none;
-    white-space: nowrap;
-    font-size: 0.875rem;
-    cursor: pointer;
-    font-weight: 500;
-    color: #2563EB;
-}
-
-.edit-btn {
-    border: none;
-    background: none;
-    cursor: pointer;
-}
-
-.assign-btn {
+.action-button {
     background: none;
     border: none;
-    white-space: nowrap;
-    font-size: 0.875rem;
-    gap: 9px;
-    cursor: pointer;
-    font-weight: 500;
-    color: #2563EB;
+    font-size: 20px;
 }
 
-.add-student-btn {
+.add-batch-btn {
     height: 2.5rem;
     padding-left: 1rem;
     padding-right: 1rem;
@@ -42,7 +21,7 @@
 }
 
 
-.add-student-btn:hover {
+.add-batch-btn:hover {
     background-color: rgba(37, 99, 235, 0.9);
     cursor: pointer;
 }

@@ -1,0 +1,55 @@
+.MuiDialogTitle-root {
+    margin: 0;
+    font-family: "ui-monospace";
+    font-weight: 500;
+    font-size: 1.1rem !important;
+    line-height: 1.6;
+    letter-spacing: 0.0075em;
+    padding: 12px 18px !important;
+}
+
+.cancel-button {
+    font-size: 14px !important;
+    padding: 8px 24px !important;
+    cursor: pointer !important;
+    text-transform: none !important;
+    white-space: nowrap !important;
+    line-height: 1.25rem !important;
+    border: 1px solid #98a2b3 !important;
+    background: #ffffff !important;
+    color: #1d2939 !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+}
+
+.cancel-button:hover {
+    border: 1px solid #22678a !important;
+    color: #22678a !important;
+    background-color: rgba(0, 0, 0, 0) !important;
+}
+
+.save-button {
+    align-items: center !important;
+    justify-content: center !important;
+    position: relative !important;
+    background-color: transparent !important;
+    vertical-align: middle !important;
+    font-family: Inter, sans-serif1 !important;
+    font-size: 0.875rem !important;
+    line-height: 1.75 !important;
+    text-transform: uppercase !important;
+    min-width: 64px !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    white-space: nowrap !important;
+    line-height: 1.25rem !important;
+    background: #3091c2 !important;
+    color: #ffffff !important;
+    padding: 8px 16px !important;
+    font-weight: 500 !important;
+}
+
+.save-button:hover {
+    background: #22678a !important;
+    color: #ffffff !important;
+}

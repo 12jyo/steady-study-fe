@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import Navbar from "./Navbar";
+import Modal from "./Modal";
 import API from "../api/api";
+import '../../src/App.css'
+import { MdOutlineAddTask } from "react-icons/md";
+import { IoIosEye } from "react-icons/io";
+import { MdDelete } from "react-icons/md";
+import '../styles/BatchesView.css'
+import { Tooltip } from "@mui/material";
 
 export default function BatchesView() {
   const [batches, setBatches] = useState([]);
@@ -107,12 +114,12 @@ export default function BatchesView() {
   return (
     <>
       <Navbar />
-      <div>
+      <div className="content-container">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">Batches</h2>
           <button
-            className="bg-blue-600 text-white px-4 py-2 rounded"
+            className="add-batch-btn"
             onClick={() => setShowAddModal(true)}
           >
             Add Batch
@@ -123,31 +130,43 @@ export default function BatchesView() {
         {loading ? (
           <p>Loading batches...</p>
         ) : (
-          <div className="overflow-x-auto bg-white rounded-lg shadow-sm">
+          <div className="table-container">
             <table className="w-full text-sm text-left">
               <thead className="bg-gray-100 text-gray-600 uppercase text-xs">
                 <tr>
                   <th className="px-4 py-3">Batch Name</th>
-                  <th className="px-4 py-3 text-right">Actions</th>
+                  <th className="px-4 py-3 text-center">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {batches.map((b) => (
                   <tr key={b._id} className="border-t hover:bg-gray-50">
                     <td className="px-4 py-3">{b.title}</td>
-                    <td className="px-4 py-3 text-right space-x-4">
-                      <button
-                        className="text-green-600 font-medium hover:underline"
-                        onClick={() => handleAssignResources(b)}
-                      >
-                        Assign Resources
-                      </button>
-                      <button
-                        className="text-blue-600 font-medium hover:underline"
-                        onClick={() => handleViewResources(b)}
-                      >
-                        View Resources
-                      </button>
+                    <td className="px-4 py-3 text-center space-x-4">
+                      <Tooltip title="Assign Resources" arrow>
+                        <button
+                          className="action-button"
+                          onClick={() => handleAssignResources(b)}
+                        >
+                          <MdOutlineAddTask />
+                        </button>
+                      </Tooltip>
+                      <Tooltip title="View Resources" arrow>
+                        <button
+                          className="action-button"
+                          onClick={() => handleViewResources(b)}
+                        >
+                          <IoIosEye />
+                        </button>
+                      </Tooltip>
+                      <Tooltip title="Delete Batch" arrow>
+                        <button
+                          className="action-button"
+                          onClick={() => console.log("Delete", b._id)}
+                        >
+                          <MdDelete />
+                        </button>
+                      </Tooltip>
                     </td>
                   </tr>
                 ))}
@@ -168,112 +187,97 @@ export default function BatchesView() {
 
         {/* Add Batch Modal */}
         {showAddModal && (
-          <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-              <h3 className="text-lg font-semibold mb-4">Add New Batch</h3>
-              <form onSubmit={handleAddBatch} className="space-y-3">
+          <Modal
+            open={showAddModal}
+            title="Add New Batch"
+            content={
+              <form id="add-batch-form" onSubmit={handleAddBatch} className="space-y-3">
                 <input
                   type="text"
                   placeholder="Batch Title"
                   value={newBatchTitle}
-                  onChange={(e) => setNewBatchTitle(e.target.value)}
+                  onChange={e => setNewBatchTitle(e.target.value)}
                   className="border p-2 w-full rounded"
+                  required
                 />
-                <div className="flex justify-end gap-2">
-                  <button
-                    type="button"
-                    className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-                    onClick={() => setShowAddModal(false)}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                  >
-                    Add
-                  </button>
-                </div>
               </form>
-            </div>
-          </div>
+            }
+            onSave={() => document.getElementById('add-batch-form').requestSubmit()}
+            onCancel={() => setShowAddModal(false)}
+            saveText="Add"
+            cancelText="Cancel"
+          />
         )}
 
         {/* Assign/View Resources Modal */}
         {showResourceModal && (
-          <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-[500px] max-h-[80vh] overflow-auto">
-              <h3 className="text-lg font-semibold mb-4">
-                {isViewMode
-                  ? `Resources in ${selectedBatch?.title}`
-                  : `Manage Resources for ${selectedBatch?.title}`}
-              </h3>
-
-              {/* Upload Section (hidden in view mode) */}
-              {!isViewMode && (
-                <form onSubmit={handleUploadResource} className="mb-4">
-                  <input
-                    type="file"
-                    multiple
-                    onChange={(e) => setFiles(e.target.files)}
-                    className="border p-2 rounded w-full mb-3"
-                  />
-                  {files && (
-                    <p className="text-xs text-gray-500 mb-2">
-                      {files.length} file{files.length > 1 ? "s" : ""} selected
-                    </p>
-                  )}
-                  <div className="flex justify-end gap-2">
-                    <button
-                      type="button"
-                      disabled={!files || uploading}
-                      onClick={handleUploadResource}
-                      className={`px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50`}
-                    >
-                      {uploading ? "Uploading..." : "Add Resource(s)"}
-                    </button>
-                  </div>
-                </form>
-              )}
-
-              {/* Resource List */}
-              <div className="space-y-2">
-                {resources.length === 0 ? (
-                  <p className="text-gray-500 text-sm">No resources found.</p>
-                ) : (
-                  resources.map((r) => (
-                    <div
-                      key={r._id}
-                      className="flex justify-between items-center border p-2 rounded"
-                    >
-                      <span>{r.title}</span>
-                      {r.url ? (
-                        <a
-                          href={r.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 text-sm hover:underline"
-                        >
-                          View
-                        </a>
-                      ) : (
-                        <span className="text-gray-400 text-xs">(no link)</span>
-                      )}
+          <Modal
+            open={showResourceModal}
+            title={isViewMode
+              ? `Resources in ${selectedBatch?.title}`
+              : `Manage Resources for ${selectedBatch?.title}`}
+            content={
+              <>
+                {/* Upload Section (hidden in view mode) */}
+                {!isViewMode && (
+                  <form onSubmit={handleUploadResource} className="mb-4">
+                    <input
+                      type="file"
+                      multiple
+                      onChange={(e) => setFiles(e.target.files)}
+                      className="border p-2 rounded w-full mb-3"
+                    />
+                    {files && (
+                      <p className="text-xs text-gray-500 mb-2">
+                        {files.length} file{files.length > 1 ? "s" : ""} selected
+                      </p>
+                    )}
+                    <div className="flex justify-end gap-2">
+                      <button
+                        type="button"
+                        disabled={!files || uploading}
+                        onClick={handleUploadResource}
+                        className={`px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50`}
+                      >
+                        {uploading ? "Uploading..." : "Add Resource(s)"}
+                      </button>
                     </div>
-                  ))
+                  </form>
                 )}
-              </div>
-
-              <div className="flex justify-end mt-6">
-                <button
-                  onClick={() => setShowResourceModal(false)}
-                  className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
+                {/* Resource List */}
+                <div className="space-y-2">
+                  {resources.length === 0 ? (
+                    <p className="text-gray-500 text-sm">No resources found.</p>
+                  ) : (
+                    resources.map((r) => (
+                      <div
+                        key={r._id}
+                        className="flex justify-between items-center border p-2 rounded"
+                      >
+                        <span>{r.title}</span>
+                        {r.url ? (
+                          <a
+                            href={r.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 text-sm hover:underline"
+                          >
+                            View
+                          </a>
+                        ) : (
+                          <span className="text-gray-400 text-xs">(no link)</span>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
+              </>
+            }
+            onSave={!isViewMode ? handleUploadResource : undefined}
+            onCancel={() => setShowResourceModal(false)}
+            saveText={!isViewMode ? (uploading ? "Uploading..." : "Add Resource(s)") : undefined}
+            cancelText={isViewMode ? "Close" : "Cancel"}
+          />
         )}
       </div>
     </>

@@ -17,9 +17,14 @@
 }
 
 .logo {
-    font-size: 1.125rem; /* 18px */
-  line-height: 1.75rem; /* 28px */
-  font-weight: 700; /* bold */
+    font-size: 1.6rem;
+    line-height: 1.75rem;
+    font-weight: 700;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    font-family: math;
 }
 
 .nav-items {
@@ -29,11 +34,17 @@
 }
 
 .nav-item {
-    color: #6B7280;;
+    color: #6B7280;
+    ;
     transition-property: color;
     transition-duration: 150ms;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     text-decoration: none;
+}
+
+.active-nav-item {
+    color: #2563EB !important;
+    font-weight: 600;
 }
 
 .nav-item:hover {

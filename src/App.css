@@ -10,3 +10,29 @@
     position: absolute;
     left: 10%;
 }
+
+.logout {
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.table-container {
+    border: 1px solid #8a7f7f;
+    padding: 1rem;
+    border-radius: 1rem;
+    overflow-x: auto;
+    overflow-y: auto;
+    background: white;
+
+    table {
+        thead {
+
+            tr {
+                border-bottom: 1px solid #e0d4d4;
+                margin-bottom: 1rem;
+            }
+        }
+    }
+
+}
