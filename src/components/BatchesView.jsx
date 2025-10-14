@@ -24,6 +24,8 @@ export default function BatchesView() {
   const [files, setFiles] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [isViewMode, setIsViewMode] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [batchToDelete, setBatchToDelete] = useState(null);
 
   // fetch data
   useEffect(() => {
@@ -114,6 +116,38 @@ export default function BatchesView() {
     }
   };
 
+  const handleDeleteBatch = (batch) => {
+    setBatchToDelete(batch);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteBatch = async () => {
+    if (!batchToDelete) return;
+    try {
+      setLoading(true);
+      await API.delete("/admin/delete-batch", { data: { batchId: batchToDelete._id } });
+      setShowDeleteModal(false);
+      setBatchToDelete(null);
+      fetchBatches();
+    } catch (err) {
+      console.error("Error deleting batch", err);
+      setShowDeleteModal(false);
+      setBatchToDelete(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Delete resource handler
+  const handleDeleteResource = async (resourceId) => {
+    try {
+      await API.delete("/admin/delete-resource", { data: { resourceId } });
+      setResources((prev) => prev.filter((r) => r._id !== resourceId));
+    } catch (err) {
+      console.error("Error deleting resource", err);
+    }
+  };
+
   // --- AG Grid Columns ---
   const columnDefs = useMemo(
     () => [
@@ -149,7 +183,7 @@ export default function BatchesView() {
             <Tooltip title="Delete Batch" arrow>
               <button
                 className="action-button"
-                onClick={() => console.log("Delete", params.data._id)}
+                onClick={() => handleDeleteBatch(params.data)}
               >
                 <MdDelete />
               </button>
@@ -278,18 +312,28 @@ export default function BatchesView() {
                         className="flex justify-between items-center border p-2 rounded"
                       >
                         <span>{r.title}</span>
-                        {r.url ? (
-                          <a
-                            href={r.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 text-sm hover:underline"
-                          >
-                            View
-                          </a>
-                        ) : (
-                          <span className="text-gray-400 text-xs">(no link)</span>
-                        )}
+                        <div className="flex items-center gap-2">
+                          {r.url ? (
+                            <a
+                              href={r.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 text-sm hover:underline"
+                            >
+                              View
+                            </a>
+                          ) : (
+                            <span className="text-gray-400 text-xs">(no link)</span>
+                          )}
+                          {isViewMode && (
+                            <button
+                              className="text-red-600 text-xs border border-red-600 rounded px-2 py-1 ml-2 hover:bg-red-50"
+                              onClick={() => handleDeleteResource(r._id)}
+                            >
+                              Delete
+                            </button>
+                          )}
+                        </div>
                       </div>
                     ))
                   )}
@@ -306,6 +350,28 @@ export default function BatchesView() {
                 : undefined
             }
             cancelText={isViewMode ? "Close" : "Cancel"}
+          />
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteModal && (
+          <Modal
+            open={showDeleteModal}
+            title="Delete Batch Confirmation"
+            content={
+              <div>
+                Are you sure you want to delete the batch{" "}
+                <b>{batchToDelete?.title}</b> and all its students? This action
+                cannot be undone.
+              </div>
+            }
+            onSave={confirmDeleteBatch}
+            onCancel={() => {
+              setShowDeleteModal(false);
+              setBatchToDelete(null);
+            }}
+            saveText="Yes, Delete"
+            cancelText="Cancel"
           />
         )}
       </div>
