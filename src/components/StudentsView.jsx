@@ -1,13 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import Navbar from "./Navbar";
 import Modal from "./Modal";
 import API from "../api/api";
 import { FaUserPlus } from "react-icons/fa";
-import '../../src/App.css'
-import '../styles/StudentsView.css'
 import { MdEdit } from "react-icons/md";
 import { toast } from "react-toastify";
 import { Tooltip } from "@mui/material";
+import { AgGridReact } from "ag-grid-react";
+import "ag-grid-community/styles/ag-grid.css";
+import "ag-grid-community/styles/ag-theme-alpine.css";
+import "../../src/App.css";
+import "../styles/StudentsView.css";
+import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
+ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function StudentsView() {
     const [students, setStudents] = useState([]);
@@ -21,6 +26,17 @@ export default function StudentsView() {
     const [email, setEmail] = useState("");
     const [editingId, setEditingId] = useState(null);
     const [newDeviceLimit, setNewDeviceLimit] = useState(2);
+
+    const [quickFilterText, setQuickFilterText] = useState("");
+    const onFilterTextChange = useCallback((e) => {
+        setQuickFilterText(e.target.value);
+    }, []);
+
+    const [defaultColDef] = useState({
+        resizable: true,
+        sortable: true,
+        filter: true,
+    });
 
     useEffect(() => {
         fetchStudentsAndBatches();
@@ -42,7 +58,7 @@ export default function StudentsView() {
             setBatches(batchesRes.data);
         } catch (err) {
             console.error("Error fetching data", err);
-            alert("Failed to fetch students or batches.");
+            toast.error("Failed to fetch students or batches.");
         } finally {
             setLoading(false);
         }
@@ -61,11 +77,10 @@ export default function StudentsView() {
                 { name: name.trim(), email: email.trim() },
                 {
                     headers: { Authorization: `Bearer ${token}` },
-                    responseType: "blob", // since we return CSV
+                    responseType: "blob",
                 }
             );
 
-            // Download CSV
             const blob = new Blob([res.data], { type: "text/csv" });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement("a");
@@ -78,8 +93,6 @@ export default function StudentsView() {
             setName("");
             setEmail("");
             setShowAddModal(false);
-
-            // Refresh list
             await fetchStudentsAndBatches();
         } catch (err) {
             console.error(err);
@@ -87,7 +100,7 @@ export default function StudentsView() {
         }
     };
 
-    // Reset password → CSV
+    // Reset password
     const handleResetPassword = async (studentId, email) => {
         const token = localStorage.getItem("token");
         try {
@@ -117,19 +130,16 @@ export default function StudentsView() {
         }
     };
 
-    // Update device limit (1–5)
+    // Update device limit
     const handleUpdateDeviceLimit = async (studentId) => {
         const token = localStorage.getItem("token");
         try {
             await API.put(
                 "/admin/set-student-device-limit",
-                {
-                    studentId,
-                    deviceLimit: Number(newDeviceLimit),
-                },
+                { studentId, deviceLimit: Number(newDeviceLimit) },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            alert("Device limit updated successfully");
+            toast.success("Device limit updated successfully");
 
             setStudents((prev) =>
                 prev.map((s) =>
@@ -141,18 +151,17 @@ export default function StudentsView() {
             setEditingId(null);
         } catch (err) {
             console.error("Device limit update failed:", err);
-            alert(err.response?.data?.message || "Error updating device limit");
+            toast.error(err.response?.data?.message || "Error updating device limit");
         }
     };
 
-    // Batch assignment modal open
+    // Assign batches
     const handleAssignClick = (student) => {
         setSelectedStudent(student);
         setSelectedBatches(student.batchIds?.map((b) => b._id) || []);
         setShowBatchModal(true);
     };
 
-    // Batch checkbox toggle
     const handleBatchToggle = (batchId) => {
         setSelectedBatches((prev) =>
             prev.includes(batchId)
@@ -161,21 +170,16 @@ export default function StudentsView() {
         );
     };
 
-    // Save assigned batches
     const handleSaveBatches = async () => {
         const token = localStorage.getItem("token");
         try {
             await API.put(
                 "/admin/assign-batches",
-                {
-                    studentId: selectedStudent._id,
-                    batchIds: selectedBatches,
-                },
+                { studentId: selectedStudent._id, batchIds: selectedBatches },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
             toast.success("Batches assigned successfully!");
-
             setStudents((prev) =>
                 prev.map((s) =>
                     s._id === selectedStudent._id
@@ -199,6 +203,105 @@ export default function StudentsView() {
         }
     };
 
+    // --- AG Grid Columns ---
+    const columnDefs = useMemo(
+        () => [
+            {
+                headerName: "Name",
+                field: "name",
+                flex: 1,
+                filter: "agTextColumnFilter", // ✅ enable text filter
+            },
+            {
+                headerName: "Email",
+                field: "email",
+                flex: 1,
+                filter: "agTextColumnFilter", // ✅ enable text filter
+            },
+            {
+                headerName: "No. of Device Access",
+                field: "deviceLimit",
+                flex: 1,
+                filter: "agNumberColumnFilter", // ✅ enable number filter
+                cellRenderer: (params) => {
+                    const s = params.data;
+                    return editingId === s._id ? (
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="number"
+                                min="1"
+                                max="5"
+                                value={newDeviceLimit}
+                                onChange={(e) => setNewDeviceLimit(e.target.value)}
+                                className="border p-1 w-16 rounded text-center"
+                            />
+                            <button
+                                className="text-green-600 font-medium hover:underline"
+                                onClick={() => handleUpdateDeviceLimit(s._id)}
+                            >
+                                Save
+                            </button>
+                            <button
+                                className="text-gray-500 hover:underline"
+                                onClick={() => setEditingId(null)}
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="flex items-center justify-start gap-[1rem]">
+                            <span>{s.deviceLimit}</span>
+                            <Tooltip title="Edit No. of Device Access" arrow>
+                                <button
+                                    className="edit-btn"
+                                    onClick={() => {
+                                        setEditingId(s._id);
+                                        setNewDeviceLimit(s.deviceLimit);
+                                    }}
+                                >
+                                    <MdEdit
+                                        size={20}
+                                        className="text-gray-600 hover:text-blue-600 transition-colors"
+                                    />
+                                </button>
+                            </Tooltip>
+                        </div>
+                    );
+                },
+            },
+            {
+                headerName: "Batch Assignment",
+                field: "batchIds",
+                flex: 1.3,
+                suppressHeaderFilterButton: true, // 👈 disables filter menu
+                cellRenderer: (params) => (
+                    <button
+                        className="flex items-center gap-1 text-blue-600 font-medium assign-btn"
+                        onClick={() => handleAssignClick(params.data)}
+                    >
+                        <FaUserPlus className="text-blue-500" /> Assign Batches
+                    </button>
+                ),
+            },
+            {
+                headerName: "Actions",
+                flex: 1,
+                suppressHeaderFilterButton: true, // 👈 disables filter menu
+                cellRenderer: (params) => (
+                    <button
+                        className="reset-pwd-btn"
+                        onClick={() =>
+                            handleResetPassword(params.data._id, params.data.email)
+                        }
+                    >
+                        Reset Password
+                    </button>
+                ),
+            },
+        ],
+        [editingId, newDeviceLimit]
+    );
+
     return (
         <>
             <Navbar />
@@ -217,114 +320,46 @@ export default function StudentsView() {
                 {loading ? (
                     <p>Loading students...</p>
                 ) : (
-                    <div className="table-container">
-                        <table className="w-full text-sm text-left">
-                            <thead className="bg-gray-100 text-gray-600 uppercase text-xs">
-    <tr style={{ backgroundColor: "#f9f9f9", color: "#333", fontWeight: "bold" }}>
-                                    <th className="px-4 py-3">Name</th>
-                                    <th className="px-4 py-3">Email</th>
-                                    <th className="px-4 py-3">No. of Device Access</th>
-                                    <th className="px-4 py-3">Batch Assignment</th>
-                                    <th className="px-4 py-3">Actions</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                {students.map((s) => (
-                                    <tr key={s._id} className="border-t hover:bg-gray-50 border-t border-black">
-                                        <td className="px-4 py-3">{s.name}</td>
-                                        <td className="px-4 py-3">{s.email}</td>
-
-                                        <td className="px-4 py-3 text-center">
-                                            {editingId === s._id ? (
-                                                <div className="flex items-center gap-2">
-                                                    <input
-                                                        type="number"
-                                                        min="1"
-                                                        max="5"
-                                                        value={newDeviceLimit}
-                                                        onChange={(e) => setNewDeviceLimit(e.target.value)}
-                                                        className="border p-1 w-16 rounded text-center"
-                                                    />
-                                                    <button
-                                                        className="text-green-600 font-medium hover:underline"
-                                                        onClick={() => handleUpdateDeviceLimit(s._id)}
-                                                    >
-                                                        Save
-                                                    </button>
-                                                    <button
-                                                        className="text-gray-500 hover:underline"
-                                                        onClick={() => setEditingId(null)}
-                                                    >
-                                                        Cancel
-                                                    </button>
-                                                </div>
-                                            ) : (
-                                                <div className="flex items-center justify-start gap-[1rem]">
-                                                    <span>{s.deviceLimit}</span>
-                                                    <Tooltip title="Edit No. of Device Access" arrow>
-                                                        <button
-                                                            className="edit-btn"
-                                                            onClick={() => {
-                                                                setEditingId(s._id);
-                                                                setNewDeviceLimit(s.deviceLimit);
-                                                            }}
-                                                        >
-                                                            <MdEdit size={20} className="text-gray-600 hover:text-blue-600 transition-colors" />
-
-                                                        </button>
-                                                    </Tooltip>
-                                                </div>
-                                            )}
-                                        </td>
-
-                                        <td className="px-4 py-3">
-                                            <button
-                                                className="flex items-center gap-1 text-blue-600 font-medium assign-btn"
-                                                onClick={() => handleAssignClick(s)}
-                                            >
-                                                <FaUserPlus className="text-blue-500" /> Assign Batches
-                                            </button>
-                                            {/* {s.batchIds?.length > 0 && (
-                                                <p className="text-xs text-gray-500 mt-1">
-                                                    {s.batchIds.map((b) => b.title).join(", ")}
-                                                </p>
-                                            )} */}
-                                        </td>
-
-                                        <td className="text-left">
-                                            <button
-                                                className="reset-pwd-btn"
-                                                onClick={() => handleResetPassword(s._id, s.email)}
-                                            >
-                                                Reset Password
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-
-                                {students.length === 0 && (
-                                    <tr>
-                                        <td
-                                            colSpan={5}
-                                            className="text-center py-6 text-gray-500 italic"
-                                        >
-                                            No students found.
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
+                    <>
+                        <div className="search-container">
+                            <input
+                                type="text"
+                                onChange={onFilterTextChange}
+                                placeholder="Search..."
+                                className="search-input"
+                            />
+                        </div>
+                        <div className="ag-theme-alpine grid-container">
+                            <AgGridReact
+                                rowData={students}
+                                columnDefs={columnDefs}
+                                pagination={true}
+                                rowHeight={50}
+                                headerHeight={51}
+                                paginationPageSize={10}
+                                paginationPageSizeSelector={[10, 20, 50]}
+                                quickFilterText={quickFilterText}
+                                suppressCellFocus={true}
+                                defaultColDef={defaultColDef}
+                                domLayout="normal"
+                            // className="table-container"
+                            />
+                        </div>
+                    </>
                 )}
             </div>
 
+            {/* Add Student Modal */}
             {showAddModal && (
                 <Modal
                     open={showAddModal}
                     title="Add New Student"
                     content={
-                        <form id="add-student-form" onSubmit={handleAddStudent} className="flex gap-[1rem] flex-col">
+                        <form
+                            id="add-student-form"
+                            onSubmit={handleAddStudent}
+                            className="flex gap-[1rem] flex-col"
+                        >
                             <input
                                 type="text"
                                 placeholder="Full Name"
@@ -343,19 +378,28 @@ export default function StudentsView() {
                             />
                         </form>
                     }
-                    onSave={() => document.getElementById('add-student-form').requestSubmit()}
+                    onSave={() =>
+                        document.getElementById("add-student-form").requestSubmit()
+                    }
                     onCancel={() => setShowAddModal(false)}
                     saveText="Generate CSV"
                     cancelText="Cancel"
                 />
             )}
 
+            {/* Assign Batch Modal */}
             {showBatchModal && (
                 <Modal
                     open={showBatchModal}
-                    title={`Assign Batches for ${selectedStudent?.name || ''}`}
+                    title={`Assign Batches for ${selectedStudent?.name || ""}`}
                     content={
-                        <form id="assign-batch-form" onSubmit={e => { e.preventDefault(); handleSaveBatches(); }}>
+                        <form
+                            id="assign-batch-form"
+                            onSubmit={(e) => {
+                                e.preventDefault();
+                                handleSaveBatches();
+                            }}
+                        >
                             <div className="space-y-2">
                                 {batches.map((batch) => (
                                     <label key={batch._id} className="flex items-center gap-2">
@@ -370,7 +414,7 @@ export default function StudentsView() {
                             </div>
                         </form>
                     }
-                    onSave={() => handleSaveBatches()}
+                    onSave={handleSaveBatches}
                     onCancel={() => setShowBatchModal(false)}
                     saveText="Save"
                     cancelText="Cancel"

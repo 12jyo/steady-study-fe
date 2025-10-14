@@ -46,3 +46,26 @@
     background-color: rgba(37, 99, 235, 0.9);
     cursor: pointer;
 }
+
+.ag-theme-alpine .ag-header-cell-label,
+.ag-theme-alpine .ag-cell {
+  justify-content: flex-start !important;
+  text-align: left !important;
+}
+
+.ag-paging-panel {
+    .ag-paging-page-size .ag-wrapper {
+
+        height: 2rem;
+        width: 3.5rem;
+        font-size: 1rem;
+    }
+    
+    .ag-label { 
+        font-size: 15px;
+    }
+
+    .ag-paging-row-summary-panel, .ag-paging-page-summary-panel {
+        font-size: 1rem;
+    }
+}

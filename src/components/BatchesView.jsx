@@ -1,13 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Navbar from "./Navbar";
 import Modal from "./Modal";
 import API from "../api/api";
-import '../../src/App.css'
-import { MdOutlineAddTask } from "react-icons/md";
+import "../../src/App.css";
+import "../styles/BatchesView.css";
+import { MdOutlineAddTask, MdDelete } from "react-icons/md";
 import { IoIosEye } from "react-icons/io";
-import { MdDelete } from "react-icons/md";
-import '../styles/BatchesView.css'
 import { Tooltip } from "@mui/material";
+import { AgGridReact } from "ag-grid-react";
+import "ag-grid-community/styles/ag-grid.css";
+import "ag-grid-community/styles/ag-theme-alpine.css";
+import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
+ModuleRegistry.registerModules([AllCommunityModule]);
 
 export default function BatchesView() {
   const [batches, setBatches] = useState([]);
@@ -19,9 +23,9 @@ export default function BatchesView() {
   const [resources, setResources] = useState([]);
   const [files, setFiles] = useState(null);
   const [uploading, setUploading] = useState(false);
-  const [isViewMode, setIsViewMode] = useState(false); // NEW 🔹 determines if modal is readonly
+  const [isViewMode, setIsViewMode] = useState(false);
 
-  // Fetch batches on mount
+  // fetch data
   useEffect(() => {
     fetchBatches();
   }, []);
@@ -38,7 +42,7 @@ export default function BatchesView() {
     }
   };
 
-  // Add new batch
+  // add new batch
   const handleAddBatch = async (e) => {
     e.preventDefault();
     if (!newBatchTitle.trim()) return alert("Enter batch name");
@@ -54,7 +58,7 @@ export default function BatchesView() {
     }
   };
 
-  // Open modal in "Assign Resources" mode
+  // assign or view resources
   const handleAssignResources = async (batch) => {
     setIsViewMode(false);
     setSelectedBatch(batch);
@@ -62,7 +66,6 @@ export default function BatchesView() {
     await loadResources(batch._id);
   };
 
-  // Open modal in "View Resources" mode
   const handleViewResources = async (batch) => {
     setIsViewMode(true);
     setSelectedBatch(batch);
@@ -80,7 +83,7 @@ export default function BatchesView() {
     }
   };
 
-  // Upload one or multiple resources
+  // upload resources
   const handleUploadResource = async (e) => {
     e?.preventDefault?.();
     if (!files || !selectedBatch) return alert("Please select one or more files");
@@ -111,6 +114,59 @@ export default function BatchesView() {
     }
   };
 
+  // --- AG Grid Columns ---
+  const columnDefs = useMemo(
+    () => [
+      {
+        headerName: "Batch Name",
+        field: "title",
+        flex: 1,
+        filter: "agTextColumnFilter",
+      },
+      {
+        headerName: "Actions",
+        flex: 1,
+        sortable: false,
+        filter: false,
+        cellRenderer: (params) => (
+          <div className="flex justify-center items-center gap-4">
+            <Tooltip title="Assign Resources" arrow>
+              <button
+                className="action-button"
+                onClick={() => handleAssignResources(params.data)}
+              >
+                <MdOutlineAddTask />
+              </button>
+            </Tooltip>
+            <Tooltip title="View Resources" arrow>
+              <button
+                className="action-button"
+                onClick={() => handleViewResources(params.data)}
+              >
+                <IoIosEye />
+              </button>
+            </Tooltip>
+            <Tooltip title="Delete Batch" arrow>
+              <button
+                className="action-button"
+                onClick={() => console.log("Delete", params.data._id)}
+              >
+                <MdDelete />
+              </button>
+            </Tooltip>
+          </div>
+        ),
+      },
+    ],
+    []
+  );
+
+  const [defaultColDef] = useState({
+    resizable: true,
+    sortable: true,
+    filter: true,
+  });
+
   return (
     <>
       <Navbar />
@@ -130,58 +186,18 @@ export default function BatchesView() {
         {loading ? (
           <p>Loading batches...</p>
         ) : (
-          <div className="table-container">
-            <table className="w-full text-sm text-left">
-              <thead className="bg-gray-100 text-gray-600 uppercase text-xs">
-                <tr>
-                  <th className="px-4 py-3">Batch Name</th>
-                  <th className="px-4 py-3 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {batches.map((b) => (
-                  <tr key={b._id} className="border-t hover:bg-gray-50">
-                    <td className="px-4 py-3">{b.title}</td>
-                    <td className="px-4 py-3 text-center space-x-4">
-                      <Tooltip title="Assign Resources" arrow>
-                        <button
-                          className="action-button"
-                          onClick={() => handleAssignResources(b)}
-                        >
-                          <MdOutlineAddTask />
-                        </button>
-                      </Tooltip>
-                      <Tooltip title="View Resources" arrow>
-                        <button
-                          className="action-button"
-                          onClick={() => handleViewResources(b)}
-                        >
-                          <IoIosEye />
-                        </button>
-                      </Tooltip>
-                      <Tooltip title="Delete Batch" arrow>
-                        <button
-                          className="action-button"
-                          onClick={() => console.log("Delete", b._id)}
-                        >
-                          <MdDelete />
-                        </button>
-                      </Tooltip>
-                    </td>
-                  </tr>
-                ))}
-                {batches.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan={2}
-                      className="text-center py-6 text-gray-500 italic"
-                    >
-                      No batches found.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+          <div className="ag-theme-alpine grid-container">
+            <AgGridReact
+              rowData={batches}
+              columnDefs={columnDefs}
+              defaultColDef={defaultColDef}
+              pagination={true}
+              paginationPageSize={10}
+              paginationPageSizeSelector={[10, 20, 50]}
+              rowHeight={50}
+              headerHeight={50}
+              domLayout="normal"
+            />
           </div>
         )}
 
@@ -191,18 +207,24 @@ export default function BatchesView() {
             open={showAddModal}
             title="Add New Batch"
             content={
-              <form id="add-batch-form" onSubmit={handleAddBatch} className="space-y-3">
+              <form
+                id="add-batch-form"
+                onSubmit={handleAddBatch}
+                className="space-y-3"
+              >
                 <input
                   type="text"
                   placeholder="Batch Title"
                   value={newBatchTitle}
-                  onChange={e => setNewBatchTitle(e.target.value)}
+                  onChange={(e) => setNewBatchTitle(e.target.value)}
                   className="border p-2 w-full rounded"
                   required
                 />
               </form>
             }
-            onSave={() => document.getElementById('add-batch-form').requestSubmit()}
+            onSave={() =>
+              document.getElementById("add-batch-form").requestSubmit()
+            }
             onCancel={() => setShowAddModal(false)}
             saveText="Add"
             cancelText="Cancel"
@@ -213,12 +235,13 @@ export default function BatchesView() {
         {showResourceModal && (
           <Modal
             open={showResourceModal}
-            title={isViewMode
-              ? `Resources in ${selectedBatch?.title}`
-              : `Manage Resources for ${selectedBatch?.title}`}
+            title={
+              isViewMode
+                ? `Resources in ${selectedBatch?.title}`
+                : `Manage Resources for ${selectedBatch?.title}`
+            }
             content={
               <>
-                {/* Upload Section (hidden in view mode) */}
                 {!isViewMode && (
                   <form onSubmit={handleUploadResource} className="mb-4">
                     <input
@@ -237,7 +260,7 @@ export default function BatchesView() {
                         type="button"
                         disabled={!files || uploading}
                         onClick={handleUploadResource}
-                        className={`px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50`}
+                        className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
                       >
                         {uploading ? "Uploading..." : "Add Resource(s)"}
                       </button>
@@ -275,7 +298,13 @@ export default function BatchesView() {
             }
             onSave={!isViewMode ? handleUploadResource : undefined}
             onCancel={() => setShowResourceModal(false)}
-            saveText={!isViewMode ? (uploading ? "Uploading..." : "Add Resource(s)") : undefined}
+            saveText={
+              !isViewMode
+                ? uploading
+                  ? "Uploading..."
+                  : "Add Resource(s)"
+                : undefined
+            }
             cancelText={isViewMode ? "Close" : "Cancel"}
           />
         )}
