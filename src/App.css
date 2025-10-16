@@ -165,3 +165,12 @@
   box-shadow: 0 0 4px rgba(30, 136, 229, 0.5);
   background: #22678a;
 }
+
+.back-btn {
+  top: 1rem;
+  right: 0rem;
+  gap: 0.3rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+}

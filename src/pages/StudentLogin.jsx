@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import "../styles/modal.css";
 import { SiStudyverse } from "react-icons/si";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaArrowLeft } from "react-icons/fa";
 
 export default function StudentLogin() {
   const [email, setEmail] = useState("");
@@ -16,7 +16,6 @@ export default function StudentLogin() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
-  // 🚫 Disable back button
   useEffect(() => {
     window.history.pushState(null, "", window.location.href);
     const handlePopState = () => window.history.pushState(null, "", window.location.href);
@@ -29,9 +28,10 @@ export default function StudentLogin() {
   const handleEmailChange = (e) => {
     const value = e.target.value;
     setEmail(value);
-    if (!value) setEmailError("Email is required.");
-    else if (!validateEmail(value)) setEmailError("Invalid email address.");
-    else setEmailError("");
+    // if (!value) setEmailError("Email is required.");
+    // else 
+        // if (!validateEmail(value)) setEmailError("Invalid email address.");
+    // else setEmailError("");
   };
 
   const login = async (e) => {
@@ -46,15 +46,12 @@ export default function StudentLogin() {
       setError("Please fix the email before continuing.");
       return;
     }
-    // if (password.length < 6) {
-    //   setError("Password must be at least 6 characters long.");
-    //   return;
-    // }
 
     try {
       setIsSubmitting(true);
       const res = await API.post("/student/login", { email, password, deviceId });
       localStorage.setItem("token", res.data.token);
+      localStorage.setItem("studentEmail", email);
       toast.success("Login successful!");
       navigate("/student-dashboard");
     } catch (err) {
@@ -67,7 +64,15 @@ export default function StudentLogin() {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen">
+    <div className="flex justify-center items-center h-screen relative">
+      <button
+        onClick={() => navigate("/")}
+        className="absolute top-5 left-5 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition back-btn"
+      >
+        <FaArrowLeft size={18} />
+        <span className="text-sm font-medium">Back</span>
+      </button>
+
       <div className="flex flex-col items-center absolute top-[3rem]">
         <div className="logo flex items-center text-2xl font-bold gap-2">
           <SiStudyverse size={32} />
@@ -89,11 +94,12 @@ export default function StudentLogin() {
               value={email}
               onChange={handleEmailChange}
               onBlur={() => {
-                if (!email) setEmailError("Email is required.");
-                else if (!validateEmail(email)) setEmailError("Invalid email address.");
+                // if (!email) setEmailError("Email is required.");
+                // else 
+                    // if (!validateEmail(email)) setEmailError("Invalid email address.");
               }}
             />
-            {emailError && <p className="text-red-500 text-xs mt-1">{emailError}</p>}
+            {emailError && <p className="text-red-500 text-xs mt-1 error-text">{emailError}</p>}
           </div>
 
           <div className="relative">
