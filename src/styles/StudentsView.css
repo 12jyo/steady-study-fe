@@ -33,7 +33,7 @@
     line-height: 1.25rem;
     font-weight: 700;
     color: #ffffff;
-    background-color: #2563EB;
+    background-color: #3091c2;
     border-radius: 0.5rem;
     transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
     transition-duration: 150ms;
@@ -43,7 +43,7 @@
 
 
 .add-student-btn:hover {
-    background-color: rgba(37, 99, 235, 0.9);
+    background-color: #22678a;
     cursor: pointer;
 }
 

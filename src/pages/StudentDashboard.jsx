@@ -18,7 +18,7 @@ export default function StudentDashboard() {
     const [numPages, setNumPages] = useState(null);
     const [pageNumber, setPageNumber] = useState(1);
     const [scale, setScale] = useState(1);
-    const [rotation, setRotation] = useState(0);
+    const [rotation, setRotation] = useState(90);
     const navigate = useNavigate();
 
     // Disable back button
@@ -102,12 +102,12 @@ export default function StudentDashboard() {
             <div className="flex justify-between items-center bg-white shadow p-4">
                 <h2 className="text-xl font-bold text-gray-800">Student Dashboard</h2>
                 <Tooltip title="Logout" arrow>
-                  <button
-                      onClick={handleLogout}
-                      className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-                  >
-                      <AiOutlineLogout size={20} />
-                  </button>
+                    <button
+                        onClick={handleLogout}
+                        className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                    >
+                        <AiOutlineLogout size={20} />
+                    </button>
                 </Tooltip>
                 {showLogoutModal && (
                     <Modal
@@ -172,7 +172,7 @@ export default function StudentDashboard() {
             {/* PDF Modal Viewer */}
             {selectedPdf && (
                 <div className="fixed inset-0 bg-black/70 flex justify-center items-center z-50">
-                    <div className="bg-white rounded-lg shadow-xl w-[80vw] h-[90vh] flex flex-col relative">
+                    <div className="bg-white rounded-lg shadow-xl w-[80vw] h-[75vh] flex flex-col relative">
                         <div className="flex justify-between items-center p-3 border-b">
                             <h3 className="font-semibold">PDF Preview</h3>
                             <button
@@ -184,9 +184,10 @@ export default function StudentDashboard() {
                         </div>
 
                         <div
-                            className="flex-1 overflow-auto flex justify-center items-center bg-gray-100"
+                            className="flex-1 overflow-y-auto bg-gray-100 p-4"
                             onContextMenu={(e) => e.preventDefault()}
                         >
+
                             <Document
                                 file={{
                                     url: selectedPdf,
@@ -197,15 +198,20 @@ export default function StudentDashboard() {
                                 }}
                                 onLoadSuccess={handleDocumentLoad}
                                 onLoadError={(err) => console.error("PDF Load Error:", err)}
+                                className="flex flex-col items-center gap-4 py-4"
                             >
-                                <Page
-                                    pageNumber={pageNumber}
-                                    scale={scale}
-                                    rotate={rotation}
-                                    renderAnnotationLayer={false}
-                                    renderTextLayer={false}
-                                />
+                                {Array.from(new Array(numPages), (el, index) => (
+                                    <Page
+                                        key={`page_${index + 1}`}
+                                        pageNumber={index + 1}
+                                        scale={scale}
+                                        renderAnnotationLayer={false}
+                                        renderTextLayer={false}
+                                        rotate={rotation}
+                                    />
+                                ))}
                             </Document>
+
                         </div>
 
                         <div className="flex justify-center gap-5 p-3 border-t bg-gray-50 text-sm">

@@ -43,10 +43,10 @@
 }
 
 .active-nav-item {
-    color: #2563EB !important;
+    color: #22678a !important;
     font-weight: 600;
 }
 
 .nav-item:hover {
-    color: #2563EB;
+    color: #3091c2;
 }

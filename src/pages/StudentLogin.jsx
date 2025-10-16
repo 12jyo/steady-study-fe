@@ -4,70 +4,133 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import "../styles/modal.css";
 import { SiStudyverse } from "react-icons/si";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 export default function StudentLogin() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [deviceId, setDeviceId] = useState("WEB-DEVICE-001");
-    const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [deviceId, setDeviceId] = useState("WEB-DEVICE-001");
+  const [error, setError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
 
-    // Disable back button
-    useEffect(() => {
-        window.history.pushState(null, '', window.location.href);
-        const handlePopState = () => {
-            window.history.pushState(null, '', window.location.href);
-        };
-        window.addEventListener('popstate', handlePopState);
-        return () => {
-            window.removeEventListener('popstate', handlePopState);
-        };
-    }, []);
+  // 🚫 Disable back button
+  useEffect(() => {
+    window.history.pushState(null, "", window.location.href);
+    const handlePopState = () => window.history.pushState(null, "", window.location.href);
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
 
-    const login = async (e) => {
-        e.preventDefault();
-        try {
-            const res = await API.post("/student/login", { email, password, deviceId });
-            localStorage.setItem("token", res.data.token);
-            toast.success("Login successful!");
-            navigate("/student-dashboard");
-        } catch (err) {
-            toast.error(err.response?.data?.message || "Invalid credentials");
-        }
-    };
+  const validateEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
-    return (
-        <div className="flex justify-center items-center h-screen">
-            <div className="flex flex-col items-center absolute top-[3rem]">
-                <div className="logo flex items-center text-2xl font-bold gap-2">
-                    <SiStudyverse size={32} />
-                    Steady-Study-8
-                </div>
-            </div>
-            <form onSubmit={login} className="login">
-                <h2 className="text-xl font-semibold mb-4 text-center">Student Login</h2>
-                <div className="flex flex-col gap-[1.5rem] mt-[3.5rem]">
+  const handleEmailChange = (e) => {
+    const value = e.target.value;
+    setEmail(value);
+    if (!value) setEmailError("Email is required.");
+    else if (!validateEmail(value)) setEmailError("Invalid email address.");
+    else setEmailError("");
+  };
 
-                    <input
-                        type="email"
-                        placeholder="Email"
-                        className="border p-2 w-full mb-3 modal-input"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                    />
-                    <input
-                        type="password"
-                        placeholder="Password"
-                        className="border p-2 w-full mb-3 modal-input"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
-                </div>
-                <div className="mt-[2.3rem] flex absolute w-1/2 left-[26%]">
-                    <button className="w-full login-btn">
-                        Login
-                    </button>
-                </div>
-            </form>
+  const login = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    if (!email.trim() || !password.trim()) {
+      setError("Both email and password are required.");
+      return;
+    }
+    if (emailError) {
+      setError("Please fix the email before continuing.");
+      return;
+    }
+    // if (password.length < 6) {
+    //   setError("Password must be at least 6 characters long.");
+    //   return;
+    // }
+
+    try {
+      setIsSubmitting(true);
+      const res = await API.post("/student/login", { email, password, deviceId });
+      localStorage.setItem("token", res.data.token);
+      toast.success("Login successful!");
+      navigate("/student-dashboard");
+    } catch (err) {
+      const msg = err.response?.data?.message || "Invalid credentials.";
+      setError(msg);
+      toast.error(msg);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="flex justify-center items-center h-screen">
+      <div className="flex flex-col items-center absolute top-[3rem]">
+        <div className="logo flex items-center text-2xl font-bold gap-2">
+          <SiStudyverse size={32} />
+          Steady-Study-8
         </div>
-    );
+      </div>
+
+      <form onSubmit={login} className="login">
+        <h2 className="text-xl font-semibold mb-4 text-center">Student Login</h2>
+
+        <div className="flex flex-col gap-[1.5rem] mt-[3.5rem]">
+          <div>
+            <input
+              type="email"
+              placeholder="Email"
+              className={`border p-2 w-full mb-1 modal-input ${
+                emailError ? "border-red-500" : ""
+              }`}
+              value={email}
+              onChange={handleEmailChange}
+              onBlur={() => {
+                if (!email) setEmailError("Email is required.");
+                else if (!validateEmail(email)) setEmailError("Invalid email address.");
+              }}
+            />
+            {emailError && <p className="text-red-500 text-xs mt-1">{emailError}</p>}
+          </div>
+
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              className={`border p-2 w-full modal-input pr-10 ${
+                password && password.length < 6 ? "border-red-500" : ""
+              }`}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="show-password"
+              tabIndex={-1}
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </button>
+          </div>
+        </div>
+
+        {error && <p className="error-text">{error}</p>}
+
+        <div className="mt-[2.3rem] flex absolute w-1/2 left-[26%]">
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className={`w-full login-btn ${
+              isSubmitting ? "opacity-60 cursor-not-allowed" : ""
+            }`}
+          >
+            {isSubmitting ? "Logging in..." : "Login"}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
 }

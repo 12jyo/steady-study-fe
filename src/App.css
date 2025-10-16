@@ -120,8 +120,48 @@
   border-radius: 0.3rem;
   border: none;
   cursor: pointer;
-  background-color: #247cc8;
+  background-color: #3091c2;
   color: white;
   font-size: 1rem;
   font-weight: 600;
+}
+
+.login-btn:hover,
+.login-btn:focus {
+  background: #22678a;
+}
+
+.error-text {
+  color: #ef4444;
+  font-size: 0.875rem;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.show-password {
+  position: absolute;
+  right: 1rem;
+  background: none;
+  border: none;
+  top: 0.4rem;
+  cursor: pointer;
+}
+
+.role {
+  height: 2rem;
+  width: 15rem;
+  border-radius: 0.5rem;
+  display: flex;
+  gap: 0.6rem;
+  font-size: 1rem;
+  border: none;
+  background-color: #3091c2;
+  color: white;
+  cursor: pointer;
+}
+
+.role:hover,
+.role:focus {
+  box-shadow: 0 0 4px rgba(30, 136, 229, 0.5);
+  background: #22678a;
 }
