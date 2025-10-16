@@ -23,23 +23,11 @@
   overflow-x: auto;
   overflow-y: auto;
   background: white;
-
-
 }
 
 .ag-root-wrapper {
-  border: none;
+  border: none !important;
   height: 100%;
-}
-
-/* .ag-center-cols-viewport {
-    height: 100% !important;
-    max-height: 100% !important;
-  } */
-
-.ag-center-cols-container {
-  /* width: 100%;
-    height: 100%; */
 }
 
 .ag-root-wrapper-body {
@@ -115,4 +103,25 @@
 
 .ag-paging-panel {
   height: 3rem !important;
+}
+
+.login {
+  position: absolute;
+  top: 15rem;
+  padding: 3rem 1.5rem;
+  height: 20rem;
+  background: white;
+  box-shadow: 0 0 4px rgb(195 208 219 / 50%);
+  border-radius: 1rem;
+}
+
+.login-btn {
+  height: 2.3rem;
+  border-radius: 0.3rem;
+  border: none;
+  cursor: pointer;
+  background-color: #247cc8;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
 }

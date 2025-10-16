@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import API from "../api/api";
+import { toast } from "react-toastify";
+import '../styles/modal.css';
 
 export default function FileUploader({ batches: propBatches }) {
   const [batchId, setBatchId] = useState("");
@@ -17,7 +19,7 @@ export default function FileUploader({ batches: propBatches }) {
     formData.append("batchId", batchId);
     formData.append("file", file);
     await API.post("/admin/upload", formData);
-    alert("File uploaded successfully!");
+    toast.success("File uploaded successfully!");
   };
 
   return (
@@ -27,7 +29,7 @@ export default function FileUploader({ batches: propBatches }) {
         <option value="">Select Batch</option>
         {batches && batches.map((b) => <option key={b._id} value={b._id}>{b.title}</option>)}
       </select>
-      <input type="file" onChange={(e) => setFile(e.target.files[0])} className="mr-2" />
+      <input type="file" onChange={(e) => setFile(e.target.files[0])} className="mr-2 modal-input" />
       <button onClick={upload} className="bg-orange-600 text-white px-4 py-2 rounded">Upload</button>
     </div>
   );

@@ -7,6 +7,7 @@ import "react-pdf/dist/Page/TextLayer.css";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import { AiOutlineLogout } from "react-icons/ai";
 import { Tooltip } from "@mui/material";
+import { toast } from "react-toastify";
 import '../../src/App.css'
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
@@ -59,7 +60,7 @@ export default function StudentDashboard() {
         })
             .then((res) => setResources(res.data))
             .catch(() => {
-                alert("Session expired. Please login again.");
+                toast.error("Session expired. Please login again.");
                 localStorage.removeItem("token");
                 navigate("/student-login");
             });
@@ -138,8 +139,20 @@ export default function StudentDashboard() {
                                 {r.url ? (
                                     isPdf(r.url) ? (
                                         <button
-                                            //   onClick={() => setSelectedPdf(`/api/student/resource/${r._id}/file`)}
-                                            onClick={() => setSelectedPdf(`http://localhost:5000/api/student/resource/${r._id}/file`)}
+                                            onClick={async () => {
+                                                try {
+                                                    const token = localStorage.getItem("token");
+                                                    const res = await API.get(`/student/resource/${r._id}/file`, {
+                                                        responseType: "blob",
+                                                        headers: { Authorization: `Bearer ${token}` },
+                                                    });
+                                                    const blob = new Blob([res.data], { type: "application/pdf" });
+                                                    const url = window.URL.createObjectURL(blob);
+                                                    setSelectedPdf(url);
+                                                } catch (err) {
+                                                    toast.error("Failed to load PDF preview.", err);
+                                                }
+                                            }}
                                             className="text-blue-600 hover:underline text-sm"
                                         >
                                             View

@@ -53,3 +53,16 @@
     background: #22678a !important;
     color: #ffffff !important;
 }
+
+.modal-input {
+  height: 1.6rem;
+  width: 24rem;
+  border-radius: 0.3rem;
+  padding: 0.1rem 0.5rem;
+}
+
+.modal-input:focus, .modal-input:active {
+  outline: none;
+  border-color: #1e88e5;
+  box-shadow: 0 0 4px rgba(30, 136, 229, 0.5);
+}

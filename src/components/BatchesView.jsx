@@ -11,7 +11,9 @@ import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
+import { toast } from "react-toastify";
 ModuleRegistry.registerModules([AllCommunityModule]);
+import '../styles/modal.css';
 
 export default function BatchesView() {
   const [batches, setBatches] = useState([]);
@@ -47,16 +49,16 @@ export default function BatchesView() {
   // add new batch
   const handleAddBatch = async (e) => {
     e.preventDefault();
-    if (!newBatchTitle.trim()) return alert("Enter batch name");
+    if (!newBatchTitle.trim()) return toast.error("Enter batch name");
     try {
       await API.post("/admin/create-batch", { title: newBatchTitle });
-      alert("Batch created successfully!");
+      toast.success("Batch created successfully!");
       setNewBatchTitle("");
       setShowAddModal(false);
       fetchBatches();
     } catch (err) {
       console.error("Error creating batch", err);
-      alert(err.response?.data?.message || "Error creating batch");
+      toast.error(err.response?.data?.message || "Error creating batch");
     }
   };
 
@@ -87,8 +89,8 @@ export default function BatchesView() {
 
   // upload resources
   const handleUploadResource = async (e) => {
-    e?.preventDefault?.();
-    if (!files || !selectedBatch) return alert("Please select one or more files");
+  e?.preventDefault?.();
+  if (!files || !selectedBatch) return toast.error("Please select one or more files");
 
     try {
       setUploading(true);
@@ -105,12 +107,12 @@ export default function BatchesView() {
         });
       }
 
-      alert(`${fileArray.length} resource(s) uploaded successfully`);
+      toast.success(`${fileArray.length} resource(s) uploaded successfully`);
       setFiles(null);
       await loadResources(selectedBatch._id);
     } catch (err) {
       console.error("Upload failed:", err);
-      alert(err.response?.data?.message || "Upload failed");
+      toast.error(err.response?.data?.message || "Upload failed");
     } finally {
       setUploading(false);
     }
@@ -251,7 +253,7 @@ export default function BatchesView() {
                   placeholder="Batch Title"
                   value={newBatchTitle}
                   onChange={(e) => setNewBatchTitle(e.target.value)}
-                  className="border p-2 w-full rounded"
+                  className="border p-2 w-full rounded modal-input"
                   required
                 />
               </form>
@@ -282,7 +284,7 @@ export default function BatchesView() {
                       type="file"
                       multiple
                       onChange={(e) => setFiles(e.target.files)}
-                      className="border p-2 rounded w-full mb-3"
+                      className="border p-2 rounded w-full mb-3 modal-input"
                     />
                     {files && (
                       <p className="text-xs text-gray-500 mb-2">

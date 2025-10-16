@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import API from "../api/api";
 import { useNavigate } from "react-router-dom";
+import "../styles/modal.css";
+import { SiStudyverse } from "react-icons/si";
 
 export default function AdminLogin() {
     const [email, setEmail] = useState("");
@@ -32,26 +34,36 @@ export default function AdminLogin() {
     };
 
     return (
-        <div className="flex h-screen justify-center items-center bg-gray-100">
-            <h3>Steady Study 8</h3>
-            <form onSubmit={handleLogin} className="bg-white p-8 shadow-md rounded w-96">
+        <div className="flex flex-col h-screen justify-center items-center">
+            <div className="flex flex-col items-center absolute top-[3rem]">
+                <div className="logo flex items-center text-2xl font-bold gap-2">
+                    <SiStudyverse size={32} />
+                    Steady-Study-8
+                </div>
+            </div>
+            <form onSubmit={handleLogin} className="login">
                 <h2 className="text-xl font-semibold mb-4 text-center">Admin Login</h2>
-                <input
-                    type="email"
-                    placeholder="Email"
-                    className="border p-2 w-full mb-3"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                />
-                <input
-                    type="password"
-                    placeholder="Password"
-                    className="border p-2 w-full mb-3"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
+                <div className="flex flex-col gap-[1.5rem] mt-[3.5rem]">
+
+                    <input
+                        type="email"
+                        placeholder="Email"
+                        className="border p-2 w-full mb-3 modal-input"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <input
+                        type="password"
+                        placeholder="Password"
+                        className="border p-2 w-full mb-3 modal-input"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+                </div>
                 {error && <p className="text-red-500 text-sm">{error}</p>}
-                <button className="bg-blue-600 text-white py-2 w-full rounded">Login</button>
+                <div className="mt-[2.3rem] flex absolute w-1/2 left-[26%]">
+                    <button className="w-full login-btn">Login</button>
+                </div>
             </form>
         </div>
     );

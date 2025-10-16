@@ -13,6 +13,7 @@ import "../../src/App.css";
 import "../styles/StudentsView.css";
 import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
 ModuleRegistry.registerModules([AllCommunityModule]);
+import '../styles/modal.css';
 
 export default function StudentsView() {
     const [students, setStudents] = useState([]);
@@ -96,7 +97,7 @@ export default function StudentsView() {
             await fetchStudentsAndBatches();
         } catch (err) {
             console.error(err);
-            toast.error(err.response?.data?.message || "❌ Error adding student");
+            toast.error(err.response?.data?.message || err.message);
         }
     };
 
@@ -233,7 +234,7 @@ export default function StudentsView() {
                                 max="5"
                                 value={newDeviceLimit}
                                 onChange={(e) => setNewDeviceLimit(e.target.value)}
-                                className="border p-1 w-16 rounded text-center"
+                                className="border p-1 w-16 rounded text-center modal-input"
                             />
                             <button
                                 className="text-green-600 font-medium hover:underline"
@@ -365,7 +366,7 @@ export default function StudentsView() {
                                 placeholder="Full Name"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                className="border p-2 w-full rounded"
+                                className="border p-2 w-full rounded modal-input"
                                 required
                             />
                             <input
@@ -373,7 +374,7 @@ export default function StudentsView() {
                                 placeholder="Email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="border p-2 w-full rounded"
+                                className="border p-2 w-full rounded modal-input"
                                 required
                             />
                         </form>
