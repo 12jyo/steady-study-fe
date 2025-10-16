@@ -210,19 +210,19 @@ export default function StudentsView() {
                 headerName: "Name",
                 field: "name",
                 flex: 1,
-                filter: "agTextColumnFilter", // ✅ enable text filter
+                filter: "agTextColumnFilter", 
             },
             {
                 headerName: "Email",
                 field: "email",
                 flex: 1,
-                filter: "agTextColumnFilter", // ✅ enable text filter
+                filter: "agTextColumnFilter", 
             },
             {
                 headerName: "No. of Device Access",
                 field: "deviceLimit",
                 flex: 1,
-                filter: "agNumberColumnFilter", // ✅ enable number filter
+                filter: "agNumberColumnFilter",
                 cellRenderer: (params) => {
                     const s = params.data;
                     return editingId === s._id ? (
