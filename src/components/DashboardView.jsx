@@ -41,7 +41,7 @@ export default function DashboardView({ students, batches }) {
       flex: 1,
       cellRenderer: (params) => (
         <button
-          className="text-blue-600 hover:underline font-medium"
+          className="view-btn"
           onClick={() => handleViewBatch(params.data)}
         >
           View

@@ -21,3 +21,10 @@
     padding: 1rem;
     border-radius: 50%;
 }
+
+.view-btn {
+    background: none;
+    border: none;
+    color: #3091c2;
+    cursor: pointer;
+}

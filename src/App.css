@@ -22,7 +22,7 @@
   border-radius: 1rem;
   overflow-x: auto;
   overflow-y: auto;
-  background: white;
+  /* background: white; */
 }
 
 .ag-root-wrapper {
@@ -90,14 +90,14 @@
   border-radius: 1rem;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  background: #fff;
+  /* background: #fff; */
 
   input {
     padding: 0px 24px !important;
   }
 
   .ag-menu {
-    background: white !important;
+    /* background: white !important; */
   }
 }
 
@@ -173,4 +173,21 @@
   background: none;
   border: none;
   cursor: pointer;
+}
+
+.ag-ltr .ag-cell-focus:not(.ag-cell-range-selected):focus-within {
+  border: none !important;
+  outline: none !important;
+}
+
+.ag-header-cell:not(.ag-header-cell-auto-height) .ag-header-cell-comp-wrapper {
+  left: 1rem;
+}
+
+.ag-row .ag-cell:first-child {
+  left: 1rem !important;
+}
+
+.ag-header, .ag-row {
+  border-bottom: 1px solid #dfdada !important;
 }

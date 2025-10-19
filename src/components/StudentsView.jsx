@@ -337,8 +337,8 @@ export default function StudentsView() {
                                 pagination={true}
                                 rowHeight={50}
                                 headerHeight={51}
-                                paginationPageSize={10}
-                                paginationPageSizeSelector={[10, 20, 50]}
+                                paginationPageSize={25}
+                                paginationPageSizeSelector={[25, 50, 100, 200]}
                                 quickFilterText={quickFilterText}
                                 suppressCellFocus={true}
                                 defaultColDef={defaultColDef}

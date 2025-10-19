@@ -8,7 +8,7 @@ import "react-pdf/dist/Page/AnnotationLayer.css";
 import { AiOutlineLogout } from "react-icons/ai";
 import { Tooltip } from "@mui/material";
 import { toast } from "react-toastify";
-import '../../src/App.css'
+import "../../src/App.css";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -18,10 +18,11 @@ export default function StudentDashboard() {
     const [numPages, setNumPages] = useState(null);
     const [pageNumber, setPageNumber] = useState(1);
     const [scale, setScale] = useState(1);
-    const [rotation, setRotation] = useState(90);
+    const [rotation, setRotation] = useState(0);
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
     const navigate = useNavigate();
 
-    // Disable back button
+    // Disable back navigation
     useEffect(() => {
         window.history.pushState(null, "", window.location.href);
         const handlePopState = () => window.history.pushState(null, "", window.location.href);
@@ -29,7 +30,7 @@ export default function StudentDashboard() {
         return () => window.removeEventListener("popstate", handlePopState);
     }, []);
 
-    // Disable Ctrl+S and Ctrl+P
+    // Disable Ctrl+S / Ctrl+P
     useEffect(() => {
         const disableShortcuts = (e) => {
             if ((e.ctrlKey || e.metaKey) && ["s", "p"].includes(e.key.toLowerCase())) {
@@ -40,14 +41,14 @@ export default function StudentDashboard() {
         return () => window.removeEventListener("keydown", disableShortcuts);
     }, []);
 
-    // Disable right-click (Save As)
+    // Disable right-click
     useEffect(() => {
         const disableContext = (e) => e.preventDefault();
         document.addEventListener("contextmenu", disableContext);
         return () => document.removeEventListener("contextmenu", disableContext);
     }, []);
 
-    // Fetch student resources
+    // Fetch resources
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -66,17 +67,15 @@ export default function StudentDashboard() {
             });
     }, [navigate]);
 
-    const [showLogoutModal, setShowLogoutModal] = useState(false);
-    const handleLogout = () => {
-        setShowLogoutModal(true);
-    };
+    // Logout handlers
+    const handleLogout = () => setShowLogoutModal(true);
     const confirmLogout = () => {
         localStorage.removeItem("token");
         setShowLogoutModal(false);
         navigate("/");
     };
 
-    // PDF controls
+    // PDF Controls
     const handleDocumentLoad = ({ numPages }) => setNumPages(numPages);
     const handlePrev = () => setPageNumber((p) => Math.max(p - 1, 1));
     const handleNext = () => setPageNumber((p) => Math.min(p + 1, numPages));
@@ -90,7 +89,7 @@ export default function StudentDashboard() {
         setRotation(0);
     };
 
-    // Fix for URLs with ?query params (case-insensitive)
+    // Helper: detect PDF
     const isPdf = (url) => {
         if (!url) return false;
         const cleanUrl = url.split("?")[0].toLowerCase();
@@ -99,16 +98,18 @@ export default function StudentDashboard() {
 
     return (
         <div className="min-h-screen bg-gray-50 select-none">
+            {/* Header */}
             <div className="flex justify-between items-center bg-white shadow p-4">
                 <h2 className="text-xl font-bold text-gray-800">Student Dashboard</h2>
                 <Tooltip title="Logout" arrow>
                     <button
                         onClick={handleLogout}
-                        className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                        className="logout"
                     >
                         <AiOutlineLogout size={20} />
                     </button>
                 </Tooltip>
+
                 {showLogoutModal && (
                     <Modal
                         open={showLogoutModal}
@@ -122,6 +123,7 @@ export default function StudentDashboard() {
                 )}
             </div>
 
+            {/* Resource Section */}
             <div className="p-8">
                 <h3 className="text-2xl font-semibold mb-6 text-gray-800">My Resources</h3>
 
@@ -169,7 +171,7 @@ export default function StudentDashboard() {
                 )}
             </div>
 
-            {/* PDF Modal Viewer */}
+            {/* PDF Viewer Modal */}
             {selectedPdf && (
                 <div className="fixed inset-0 bg-black/70 flex justify-center items-center z-50">
                     <div className="bg-white rounded-lg shadow-xl w-[80vw] h-[75vh] flex flex-col relative">
@@ -187,7 +189,6 @@ export default function StudentDashboard() {
                             className="flex-1 overflow-y-auto bg-gray-100 p-4"
                             onContextMenu={(e) => e.preventDefault()}
                         >
-
                             <Document
                                 file={{
                                     url: selectedPdf,
@@ -197,7 +198,9 @@ export default function StudentDashboard() {
                                     withCredentials: true,
                                 }}
                                 onLoadSuccess={handleDocumentLoad}
-                                onLoadError={(err) => console.error("PDF Load Error:", err)}
+                                onLoadError={(err) =>
+                                    console.error("PDF Load Error:", err)
+                                }
                                 className="flex flex-col items-center gap-4 py-4"
                             >
                                 {Array.from(new Array(numPages), (el, index) => (
@@ -211,7 +214,6 @@ export default function StudentDashboard() {
                                     />
                                 ))}
                             </Document>
-
                         </div>
 
                         <div className="flex justify-center gap-5 p-3 border-t bg-gray-50 text-sm">

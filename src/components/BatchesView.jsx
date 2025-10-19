@@ -12,8 +12,9 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
 import { toast } from "react-toastify";
+import "../styles/modal.css";
+
 ModuleRegistry.registerModules([AllCommunityModule]);
-import '../styles/modal.css';
 
 export default function BatchesView() {
   const [batches, setBatches] = useState([]);
@@ -29,7 +30,7 @@ export default function BatchesView() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [batchToDelete, setBatchToDelete] = useState(null);
 
-  // fetch data
+  // Fetch batches
   useEffect(() => {
     fetchBatches();
   }, []);
@@ -46,7 +47,7 @@ export default function BatchesView() {
     }
   };
 
-  // add new batch
+  // Add new batch
   const handleAddBatch = async (e) => {
     e.preventDefault();
     if (!newBatchTitle.trim()) return toast.error("Enter batch name");
@@ -62,7 +63,7 @@ export default function BatchesView() {
     }
   };
 
-  // assign or view resources
+  // Open modals
   const handleAssignResources = async (batch) => {
     setIsViewMode(false);
     setSelectedBatch(batch);
@@ -77,6 +78,7 @@ export default function BatchesView() {
     await loadResources(batch._id);
   };
 
+  // Load resources for batch
   const loadResources = async (batchId) => {
     try {
       const res = await API.get(`/admin/resources?batch_id=${batchId}`);
@@ -87,10 +89,10 @@ export default function BatchesView() {
     }
   };
 
-  // upload resources
+  // Upload resources (with name field)
   const handleUploadResource = async (e) => {
-  e?.preventDefault?.();
-  if (!files || !selectedBatch) return toast.error("Please select one or more files");
+    e?.preventDefault?.();
+    if (!files || !selectedBatch) return toast.error("Please select at least one file");
 
     try {
       setUploading(true);
@@ -118,6 +120,7 @@ export default function BatchesView() {
     }
   };
 
+  // Batch deletion
   const handleDeleteBatch = (batch) => {
     setBatchToDelete(batch);
     setShowDeleteModal(true);
@@ -127,12 +130,16 @@ export default function BatchesView() {
     if (!batchToDelete) return;
     try {
       setLoading(true);
-      await API.delete("/admin/delete-batch", { data: { batchId: batchToDelete._id } });
+      await API.delete("/admin/delete-batch", {
+        data: { batchId: batchToDelete._id },
+      });
+      toast.success("Batch deleted successfully");
       setShowDeleteModal(false);
       setBatchToDelete(null);
       fetchBatches();
     } catch (err) {
       console.error("Error deleting batch", err);
+      toast.error("Error deleting batch");
       setShowDeleteModal(false);
       setBatchToDelete(null);
     } finally {
@@ -140,25 +147,22 @@ export default function BatchesView() {
     }
   };
 
-  // Delete resource handler
+  // Delete resource
   const handleDeleteResource = async (resourceId) => {
     try {
       await API.delete("/admin/delete-resource", { data: { resourceId } });
       setResources((prev) => prev.filter((r) => r._id !== resourceId));
+      toast.success("Resource deleted successfully");
     } catch (err) {
       console.error("Error deleting resource", err);
+      toast.error("Failed to delete resource");
     }
   };
 
-  // --- AG Grid Columns ---
+  // AG Grid config
   const columnDefs = useMemo(
     () => [
-      {
-        headerName: "Batch Name",
-        field: "title",
-        flex: 1,
-        filter: "agTextColumnFilter",
-      },
+      { headerName: "Batch Name", field: "title", flex: 1, filter: "agTextColumnFilter" },
       {
         headerName: "Actions",
         flex: 1,
@@ -210,10 +214,7 @@ export default function BatchesView() {
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">Batches</h2>
-          <button
-            className="add-batch-btn"
-            onClick={() => setShowAddModal(true)}
-          >
+          <button className="add-batch-btn" onClick={() => setShowAddModal(true)}>
             Add Batch
           </button>
         </div>
@@ -243,11 +244,7 @@ export default function BatchesView() {
             open={showAddModal}
             title="Add New Batch"
             content={
-              <form
-                id="add-batch-form"
-                onSubmit={handleAddBatch}
-                className="space-y-3"
-              >
+              <form id="add-batch-form" onSubmit={handleAddBatch} className="space-y-3">
                 <input
                   type="text"
                   placeholder="Batch Title"
@@ -258,9 +255,7 @@ export default function BatchesView() {
                 />
               </form>
             }
-            onSave={() =>
-              document.getElementById("add-batch-form").requestSubmit()
-            }
+            onSave={() => document.getElementById("add-batch-form").requestSubmit()}
             onCancel={() => setShowAddModal(false)}
             saveText="Add"
             cancelText="Cancel"
@@ -278,19 +273,22 @@ export default function BatchesView() {
             }
             content={
               <>
+                {/* Upload section */}
                 {!isViewMode && (
                   <form onSubmit={handleUploadResource} className="mb-4">
                     <input
                       type="file"
                       multiple
                       onChange={(e) => setFiles(e.target.files)}
-                      className="border p-2 rounded w-full mb-3 modal-input"
+                      className="border p-2 rounded w-full modal-input"
                     />
+
                     {files && (
-                      <p className="text-xs text-gray-500 mb-2">
+                      <p className="text-xs text-gray-500">
                         {files.length} file{files.length > 1 ? "s" : ""} selected
                       </p>
                     )}
+
                     <div className="flex justify-end gap-2">
                       <button
                         type="button"
@@ -303,6 +301,7 @@ export default function BatchesView() {
                     </div>
                   </form>
                 )}
+
                 {/* Resource List */}
                 <div className="space-y-2">
                   {resources.length === 0 ? (
@@ -363,8 +362,7 @@ export default function BatchesView() {
             content={
               <div>
                 Are you sure you want to delete the batch{" "}
-                <b>{batchToDelete?.title}</b> and all its students? This action
-                cannot be undone.
+                <b>{batchToDelete?.title}</b> and all its students? This action cannot be undone.
               </div>
             }
             onSave={confirmDeleteBatch}
