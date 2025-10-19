@@ -2,6 +2,7 @@
     background: none;
     border: none;
     font-size: 20px;
+    cursor: pointer;
 }
 
 .add-batch-btn {
@@ -24,4 +25,16 @@
 .add-batch-btn:hover {
     background-color: #22678a;
     cursor: pointer;
+}
+
+.assign-resources-btn {
+    color: #2563EB;
+}
+
+.view-resources-btn {
+    color: #16A34A;
+}
+
+.delete-batch-btn {
+    color: #DC2626;
 }

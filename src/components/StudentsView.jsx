@@ -274,7 +274,7 @@ export default function StudentsView() {
                 headerName: "Batch Assignment",
                 field: "batchIds",
                 flex: 1.3,
-                suppressHeaderFilterButton: true, // 👈 disables filter menu
+                suppressHeaderFilterButton: true,
                 cellRenderer: (params) => (
                     <button
                         className="flex items-center gap-1 text-blue-600 font-medium assign-btn"
@@ -287,7 +287,7 @@ export default function StudentsView() {
             {
                 headerName: "Actions",
                 flex: 1,
-                suppressHeaderFilterButton: true, // 👈 disables filter menu
+                suppressHeaderFilterButton: true, 
                 cellRenderer: (params) => (
                     <button
                         className="reset-pwd-btn"
@@ -335,8 +335,8 @@ export default function StudentsView() {
                                 rowData={students}
                                 columnDefs={columnDefs}
                                 pagination={true}
-                                rowHeight={50}
-                                headerHeight={51}
+                                rowHeight={45}
+                                headerHeight={56}
                                 paginationPageSize={25}
                                 paginationPageSizeSelector={[25, 50, 100, 200]}
                                 quickFilterText={quickFilterText}

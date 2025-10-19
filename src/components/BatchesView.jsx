@@ -169,10 +169,10 @@ export default function BatchesView() {
         sortable: false,
         filter: false,
         cellRenderer: (params) => (
-          <div className="flex justify-center items-center gap-4">
+          <div className="flex justify-start items-center gap-4">
             <Tooltip title="Assign Resources" arrow>
               <button
-                className="action-button"
+                className="action-button assign-resources-btn"
                 onClick={() => handleAssignResources(params.data)}
               >
                 <MdOutlineAddTask />
@@ -180,7 +180,7 @@ export default function BatchesView() {
             </Tooltip>
             <Tooltip title="View Resources" arrow>
               <button
-                className="action-button"
+                className="action-button view-resources-btn"
                 onClick={() => handleViewResources(params.data)}
               >
                 <IoIosEye />
@@ -188,7 +188,7 @@ export default function BatchesView() {
             </Tooltip>
             <Tooltip title="Delete Batch" arrow>
               <button
-                className="action-button"
+                className="action-button delete-batch-btn"
                 onClick={() => handleDeleteBatch(params.data)}
               >
                 <MdDelete />
@@ -231,8 +231,8 @@ export default function BatchesView() {
               pagination={true}
               paginationPageSize={10}
               paginationPageSizeSelector={[10, 20, 50]}
-              rowHeight={50}
-              headerHeight={50}
+              rowHeight={45}
+              headerHeight={56}
               domLayout="normal"
             />
           </div>

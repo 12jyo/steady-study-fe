@@ -34,18 +34,16 @@
   height: 100%;
 }
 
-.ag-header,
-.ag-row-even,
-.ag-row-odd {
+.ag-header {
   height: 2.5rem !important;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding-top: 8px;
   font-weight: 500;
   font-size: 0.9rem !important;
   color: grey;
+  margin-bottom: 1rem;
 }
 
 .ag-row {
@@ -190,4 +188,17 @@
 
 .ag-header, .ag-row {
   border-bottom: 1px solid #dfdada !important;
+}
+
+.ag-header-container {
+  background: #eaf4f9;
+  font-size: 15px;
+}
+
+.ag-header-cell {
+  color: #143d51;
+}
+
+.ag-cell-value {
+  color: #1d2939;
 }
