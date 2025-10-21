@@ -8,7 +8,7 @@ import "../../src/App.css";
 import { SiStudyverse } from "react-icons/si";
 import API from "../api/api";
 import { toast } from "react-toastify";
-import { getDeviceId } from "../utils/device"; // ✅ new import
+import { getDeviceId } from "../utils/device";
 
 export default function Navbar() {
   const navigate = useNavigate();

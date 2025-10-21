@@ -15,6 +15,7 @@ import "../styles/StudentDashboard.css";
 import { getDeviceId } from "../utils/device";
 import { SiStudyverse } from "react-icons/si";
 import { FaSearchPlus, FaSearchMinus, FaSyncAlt } from "react-icons/fa";
+import { FcNext, FcPrevious } from "react-icons/fc";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -100,7 +101,10 @@ export default function StudentDashboard() {
     };
 
     // PDF controls
-    const handleDocumentLoad = ({ numPages }) => setNumPages(numPages);
+    const handleDocumentLoad = ({ numPages }) => {
+        setNumPages(numPages);
+        setPageNumber(1);
+    };
     const handlePrev = () => setPageNumber((p) => Math.max(p - 1, 1));
     const handleNext = () => setPageNumber((p) => Math.min(p + 1, numPages));
     const handleZoomIn = () => setScale((s) => s + 0.2);
@@ -150,7 +154,7 @@ export default function StudentDashboard() {
     return (
         <div className="min-h-screen bg-gray-50 select-none">
             {/* Header */}
-            <div className="flex justify-between items-center bg-white shadow p-4 relative">
+            <nav className="flex justify-between items-center navbar">
                 <div className="logo">
                     <SiStudyverse />
                     Steady-Study-8
@@ -190,13 +194,13 @@ export default function StudentDashboard() {
                         </div>
                     )}
                 </div>
-            </div>
+            </nav>
 
             {/* Resource Section */}
             <div className="w-[80%] absolute left-[10%]">
                 <div className="p-8">
-                    <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-2xl font-bold">My Resources</h3>
+                    <div className="flex justify-between items-center mb-[1.5rem]">
+                        <h2 className="text-2xl font-bold">My Resources</h2>
                     </div>
 
                     {resources.length === 0 ? (
@@ -208,7 +212,7 @@ export default function StudentDashboard() {
                                     key={r._id}
                                     className="p-4 flex justify-between items-center rounded shadow-sm bg-white hover:shadow-md transition width-[100%] border-b border-[#cac4c4] pb-[0.5rem] h-[2rem] mb-[1rem]"
                                 >
-                                    <h3>{r.title.replace(/\.pdf$/i, "")}</h3>
+                                    <p className="text-[1.1rem]">{r.title.replace(/\.pdf$/i, "")}</p>
 
                                     {r.url ? (
                                         isPdf(r.url) ? (
@@ -222,12 +226,16 @@ export default function StudentDashboard() {
                                                         });
                                                         const blob = new Blob([res.data], { type: "application/pdf" });
                                                         const url = window.URL.createObjectURL(blob);
+                                                        setPageNumber(1);
+                                                        setScale(1);
+                                                        setRotation(0);
                                                         setSelectedPdf(url);
+
                                                     } catch (err) {
                                                         toast.error("Failed to load PDF preview.", err);
                                                     }
                                                 }}
-                                                className="text-blue-600 text-sm border-none bg-transparent text-[#3091c2] cursor-pointer"
+                                                className="text-blue-600 border-none bg-transparent text-[#3091c2] cursor-pointer text-[0.9rem]"
                                             >
                                                 View
                                             </button>
@@ -245,13 +253,13 @@ export default function StudentDashboard() {
 
                 {/* PDF Viewer Modal */}
                 {selectedPdf && (
-                    <div className="inset-0 bg-black/70 flex items-center z-50 width-[80%] block">
-                        <div className="bg-white rounded-lg shadow-xl h-[75vh] flex flex-col relative">
+                    <div className="inset-0 bg-black/70 flex items-center z-50 width-[80%] block justify-center">
+                        <div className="bg-white rounded-lg shadow-xl h-[83vh] flex flex-col relative">
                             <div className="flex justify-between items-center p-3">
                                 <h3 className="font-semibold">PDF Preview</h3>
                                 <button
                                     onClick={handleClose}
-                                    className="text-gray-500 hover:text-red-500 text-xl font-bold"
+                                    className="bg-transparent border-none text-[2.5rem] cursor-pointer"
                                 >
                                     ×
                                 </button>
@@ -281,15 +289,16 @@ export default function StudentDashboard() {
                             </div>
 
 
-                            <div className="flex justify-center items-center gap-8 p-4 bg-gray-50">
+                            <div className="flex justify-around items-center gap-8 p-4 bg-gray-50 h-[3rem]">
                                 {/* Navigation */}
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-[1rem]">
                                     <button
                                         onClick={handlePrev}
                                         disabled={pageNumber <= 1}
-                                        className="text-gray-600 hover:text-blue-600 disabled:text-gray-300"
+                                        className="text-gray-600 hover:text-blue-600 disabled:text-gray-300 pdf-page-button"
                                     >
-                                        ⬅
+                                        <FcPrevious />
+
                                     </button>
                                     <span className="text-sm text-gray-700">
                                         Page {pageNumber} of {numPages || "?"}
@@ -297,42 +306,46 @@ export default function StudentDashboard() {
                                     <button
                                         onClick={handleNext}
                                         disabled={pageNumber >= numPages}
-                                        className="text-gray-600 hover:text-blue-600 disabled:text-gray-300"
+                                        className="text-gray-600 hover:text-blue-600 disabled:text-gray-300 pdf-page-button"
                                     >
-                                        ➡
+                                        <FcNext />
+
                                     </button>
                                 </div>
 
                                 {/* Zoom & Rotate Controls */}
-                                <div className="flex items-center gap-8">
+                                <div className="flex items-center gap-[1rem]">
                                     <div className="flex flex-col items-center">
-                                        <button
-                                            onClick={handleZoomIn}
-                                            className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full text-blue-600 hover:bg-blue-200 transition"
-                                        >
-                                            <FaSearchPlus size={20} />
-                                        </button>
-                                        <span className="text-xs text-gray-600 mt-1">Zoom</span>
+                                        <Tooltip title="Zoom In" arrow>
+                                            <button
+                                                onClick={handleZoomIn}
+                                                className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full text-blue-600 hover:bg-blue-200 transition pdf-control"
+                                            >
+                                                <FaSearchPlus size={20} />
+                                            </button>
+                                        </Tooltip>
                                     </div>
 
                                     <div className="flex flex-col items-center">
-                                        <button
-                                            onClick={handleZoomOut}
-                                            className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full text-blue-600 hover:bg-blue-200 transition"
-                                        >
-                                            <FaSearchMinus size={20} />
-                                        </button>
-                                        <span className="text-xs text-gray-600 mt-1">Zoom Out</span>
+                                        <Tooltip title="Zoom Out" arrow>
+                                            <button
+                                                onClick={handleZoomOut}
+                                                className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full text-blue-600 hover:bg-blue-200 transition pdf-control"
+                                            >
+                                                <FaSearchMinus size={20} />
+                                            </button>
+                                        </Tooltip>
                                     </div>
 
                                     <div className="flex flex-col items-center">
-                                        <button
-                                            onClick={handleRotate}
-                                            className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full text-blue-600 hover:bg-blue-200 transition"
-                                        >
-                                            <FaSyncAlt size={20} />
-                                        </button>
-                                        <span className="text-xs text-gray-600 mt-1">Rotate</span>
+                                        <Tooltip title="Rotate" arrow>
+                                            <button
+                                                onClick={handleRotate}
+                                                className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full text-blue-600 hover:bg-blue-200 transition pdf-control"
+                                            >
+                                                <FaSyncAlt size={20} />
+                                            </button>
+                                        </Tooltip>
                                     </div>
                                 </div>
                             </div>

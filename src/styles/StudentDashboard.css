@@ -26,10 +26,35 @@
 }
 
 .pdf-viewer {
-  animation: fadeIn 0.2s ease-in-out;
+    animation: fadeIn 0.2s ease-in-out;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.pdf-control {
+    background: rgba(48, 145, 194, 0.2);
+    color: #3091c2;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+    height: 2.1rem;
+    width: 2.1rem;
+    padding: 0.5rem;
+}
+
+.pdf-page-button {
+    background: none;
+    border: none;
+    font-size: 1rem;
+    transition: color 0.3s ease;
 }
