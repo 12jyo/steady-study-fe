@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import "../styles/modal.css";
 import { SiStudyverse } from "react-icons/si";
 import { FaArrowLeft, FaEye, FaEyeSlash } from "react-icons/fa";
+import { toast } from "react-toastify";
+import { getDeviceId } from "../utils/device"; // ✅ Import helper
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
@@ -13,7 +15,7 @@ export default function AdminLogin() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
-  // Prevent navigating back
+  // Prevent browser back navigation
   useEffect(() => {
     window.history.pushState(null, "", window.location.href);
     const handlePopState = () => window.history.pushState(null, "", window.location.href);
@@ -38,11 +40,23 @@ export default function AdminLogin() {
 
     try {
       setIsSubmitting(true);
-      const res = await API.post("/admin/login", { email, password });
+
+      // ✅ Generate or fetch persistent device ID
+      const deviceId = getDeviceId();
+
+      // ✅ Send deviceId along with credentials
+      const res = await API.post("/admin/login", { email, password, deviceId });
+
+      // Store token + deviceId for future logout
       localStorage.setItem("token", res.data.token);
+      localStorage.setItem("deviceId", deviceId);
+
+      toast.success("Login successful!");
       navigate("/dashboard");
     } catch (err) {
-      setError(err.response?.data?.message || "Invalid email or password.");
+      const msg = err.response?.data?.message || "Invalid email or password.";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setIsSubmitting(false);
     }
@@ -50,6 +64,7 @@ export default function AdminLogin() {
 
   return (
     <div className="flex flex-col h-screen justify-center items-center relative">
+      {/* Back Button */}
       <button
         onClick={() => navigate("/")}
         className="absolute top-5 left-5 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition back-btn"
@@ -58,7 +73,7 @@ export default function AdminLogin() {
         <span className="text-sm font-medium">Back</span>
       </button>
 
-      {/* Logo */}
+      {/* Logo Section */}
       <div className="flex flex-col items-center absolute top-[3rem]">
         <div className="logo flex items-center text-2xl font-bold gap-2">
           <SiStudyverse size={32} />
@@ -82,7 +97,7 @@ export default function AdminLogin() {
             onChange={(e) => setEmail(e.target.value)}
           />
 
-          {/* Password Input with Toggle */}
+          {/* Password Input */}
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
@@ -104,7 +119,8 @@ export default function AdminLogin() {
           </div>
         </div>
 
-        {error && <p className="error-text">{error}</p>}
+        {/* Error Message */}
+        {error && <p className="error-text mt-2 text-center">{error}</p>}
 
         {/* Submit Button */}
         <div className="mt-[2.3rem] flex absolute w-1/2 left-[26%]">

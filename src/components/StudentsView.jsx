@@ -210,19 +210,19 @@ export default function StudentsView() {
             {
                 headerName: "Name",
                 field: "name",
-                flex: 1,
+                // flex: 1,
                 filter: "agTextColumnFilter", 
             },
             {
                 headerName: "Email",
                 field: "email",
-                flex: 1,
+                // flex: 1,
                 filter: "agTextColumnFilter", 
             },
             {
                 headerName: "No. of Device Access",
                 field: "deviceLimit",
-                flex: 1,
+                // flex: 1,
                 filter: "agNumberColumnFilter",
                 cellRenderer: (params) => {
                     const s = params.data;
@@ -273,7 +273,7 @@ export default function StudentsView() {
             {
                 headerName: "Batch Assignment",
                 field: "batchIds",
-                flex: 1.3,
+                // flex: 1.3,
                 suppressHeaderFilterButton: true,
                 cellRenderer: (params) => (
                     <button
@@ -286,7 +286,7 @@ export default function StudentsView() {
             },
             {
                 headerName: "Actions",
-                flex: 1,
+                // flex: 1,
                 suppressHeaderFilterButton: true, 
                 cellRenderer: (params) => (
                     <button

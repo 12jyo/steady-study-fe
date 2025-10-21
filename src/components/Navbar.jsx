@@ -1,21 +1,37 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import '../styles/navbar.css';
+import "../styles/navbar.css";
 import Modal from "./Modal";
 import { useState } from "react";
 import { AiOutlineLogout } from "react-icons/ai";
 import { Tooltip } from "@mui/material";
-import '../../src/App.css';
+import "../../src/App.css";
 import { SiStudyverse } from "react-icons/si";
+import API from "../api/api";
+import { toast } from "react-toastify";
+import { getDeviceId } from "../utils/device"; // ✅ new import
 
 export default function Navbar() {
   const navigate = useNavigate();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  const handleLogout = () => {
-    setShowLogoutModal(true);
-  };
+  const handleLogout = () => setShowLogoutModal(true);
 
-  const confirmLogout = () => {
+  const confirmLogout = async () => {
+    const token = localStorage.getItem("token");
+    const deviceId = getDeviceId();
+
+    try {
+      await API.post(
+        "/admin/logout",
+        { deviceId }, // ✅ send deviceId
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success("Logged out successfully!");
+    } catch (err) {
+      console.error("Logout failed:", err);
+      toast.error(err.response?.data?.message || "Logout failed");
+    }
+
     localStorage.removeItem("token");
     setShowLogoutModal(false);
     navigate("/");
@@ -55,15 +71,14 @@ export default function Navbar() {
             Batches
           </NavLink>
         </div>
+
         <Tooltip title="Logout" arrow>
-          <button
-            onClick={handleLogout}
-            className="logout"
-          >
+          <button onClick={handleLogout} className="logout">
             <AiOutlineLogout size={20} />
           </button>
         </Tooltip>
       </nav>
+
       {showLogoutModal && (
         <Modal
           open={showLogoutModal}

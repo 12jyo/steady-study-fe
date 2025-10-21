@@ -5,11 +5,12 @@ import { useNavigate } from "react-router-dom";
 import "../styles/modal.css";
 import { SiStudyverse } from "react-icons/si";
 import { FaEye, FaEyeSlash, FaArrowLeft } from "react-icons/fa";
+import { getDeviceId } from "../utils/device";
 
 export default function StudentLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [deviceId, setDeviceId] = useState("WEB-DEVICE-001");
+  const [deviceId] = useState(getDeviceId());
   const [error, setError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -30,7 +31,7 @@ export default function StudentLogin() {
     setEmail(value);
     // if (!value) setEmailError("Email is required.");
     // else 
-        // if (!validateEmail(value)) setEmailError("Invalid email address.");
+    // if (!validateEmail(value)) setEmailError("Invalid email address.");
     // else setEmailError("");
   };
 
@@ -88,15 +89,14 @@ export default function StudentLogin() {
             <input
               type="email"
               placeholder="Email"
-              className={`border p-2 w-full mb-1 modal-input ${
-                emailError ? "border-red-500" : ""
-              }`}
+              className={`border p-2 w-full mb-1 modal-input ${emailError ? "border-red-500" : ""
+                }`}
               value={email}
               onChange={handleEmailChange}
               onBlur={() => {
                 // if (!email) setEmailError("Email is required.");
                 // else 
-                    // if (!validateEmail(email)) setEmailError("Invalid email address.");
+                // if (!validateEmail(email)) setEmailError("Invalid email address.");
               }}
             />
             {emailError && <p className="text-red-500 text-xs mt-1 error-text">{emailError}</p>}
@@ -106,9 +106,8 @@ export default function StudentLogin() {
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
-              className={`border p-2 w-full modal-input pr-10 ${
-                password && password.length < 6 ? "border-red-500" : ""
-              }`}
+              className={`border p-2 w-full modal-input pr-10 ${password && password.length < 6 ? "border-red-500" : ""
+                }`}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -129,9 +128,8 @@ export default function StudentLogin() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`w-full login-btn ${
-              isSubmitting ? "opacity-60 cursor-not-allowed" : ""
-            }`}
+            className={`w-full login-btn ${isSubmitting ? "opacity-60 cursor-not-allowed" : ""
+              }`}
           >
             {isSubmitting ? "Logging in..." : "Login"}
           </button>
