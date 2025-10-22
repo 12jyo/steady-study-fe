@@ -1,3 +1,6 @@
+.ag-theme-alpine .ag-cell {
+  user-select: text !important;
+}
 /* #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -15,14 +18,6 @@
   border: none;
   background: none;
   cursor: pointer;
-}
-
-.table-container {
-  border: 1px solid #8a7f7f;
-  border-radius: 1rem;
-  overflow-x: auto;
-  overflow-y: auto;
-  /* background: white; */
 }
 
 .ag-root-wrapper {
@@ -194,6 +189,7 @@
 .ag-header-container {
   background: #eaf4f9;
   font-size: 15px;
+  width: auto !important;
 }
 
 .ag-header-cell {
@@ -208,4 +204,71 @@
   width: 80%;
   position: relative;
   left: 10%;
+}
+
+.ag-center-cols-container {
+  width: auto !important;
+}
+
+.ag-theme-alpine .ag-paging-panel {
+    background: #f8fafc;
+    border-radius: 0 0 0.75rem 0.75rem;
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 1rem;
+    box-shadow: 0 2px 8px 0 rgba(0,0,0,0.04);
+}
+
+.ag-theme-alpine .ag-paging-button {
+    background: #fff;
+    border: 1px solid #d1d5db;
+    color: #2563eb;
+    border-radius: 0.375rem;
+    margin: 0 0.25rem;
+    padding: 0.25rem 0.75rem;
+    font-weight: 600;
+    transition: background 0.2s, color 0.2s;
+    cursor: pointer;
+}
+.ag-theme-alpine .ag-paging-button:hover:not([disabled]) {
+    background: #2563eb;
+    color: #fff;
+    border-color: #2563eb;
+}
+.ag-theme-alpine .ag-paging-button[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.ag-theme-alpine .ag-paging-row-summary-panel, 
+.ag-theme-alpine .ag-paging-page-summary-panel {
+    font-size: 1rem;
+    color: #374151;
+    font-weight: 500;
+}
+.ag-theme-alpine .ag-paging-page-size .ag-wrapper {
+    border-radius: 0.375rem;
+    border: 1px solid #d1d5db;
+    padding: 0.25rem 0.5rem;
+    background: #fff;
+    font-size: 1rem;
+}
+.ag-theme-alpine .ag-paging-page-size select {
+    border: none;
+    background: transparent;
+    font-size: 1rem;
+    color: #2563eb;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Set cursor pointer for all react-icons */
+[class*="icon"],
+[class^="icon"],
+[class*="Icon"],
+[class^="Icon"],
+.react-icons,
+.MuiSvgIcon-root {
+    cursor: pointer !important;
 }

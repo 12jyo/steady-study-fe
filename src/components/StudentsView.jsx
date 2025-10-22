@@ -28,6 +28,14 @@ export default function StudentsView() {
     const [editingId, setEditingId] = useState(null);
     const [newDeviceLimit, setNewDeviceLimit] = useState(2);
 
+    // Redirect to home if not logged in
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            window.location.href = "/";
+        }
+    }, []);
+
     const [quickFilterText, setQuickFilterText] = useState("");
     const onFilterTextChange = useCallback((e) => {
         setQuickFilterText(e.target.value);
@@ -211,13 +219,13 @@ export default function StudentsView() {
                 headerName: "Name",
                 field: "name",
                 // flex: 1,
-                filter: "agTextColumnFilter", 
+                filter: "agTextColumnFilter",
             },
             {
                 headerName: "Email",
                 field: "email",
                 // flex: 1,
-                filter: "agTextColumnFilter", 
+                filter: "agTextColumnFilter",
             },
             {
                 headerName: "No. of Device Access",
@@ -287,7 +295,7 @@ export default function StudentsView() {
             {
                 headerName: "Actions",
                 // flex: 1,
-                suppressHeaderFilterButton: true, 
+                suppressHeaderFilterButton: true,
                 cellRenderer: (params) => (
                     <button
                         className="reset-pwd-btn"
@@ -334,16 +342,15 @@ export default function StudentsView() {
                             <AgGridReact
                                 rowData={students}
                                 columnDefs={columnDefs}
-                                pagination={true}
+                                pagination
                                 rowHeight={45}
                                 headerHeight={56}
                                 paginationPageSize={25}
                                 paginationPageSizeSelector={[25, 50, 100, 200]}
                                 quickFilterText={quickFilterText}
-                                suppressCellFocus={true}
+                                suppressCellFocus
                                 defaultColDef={defaultColDef}
                                 domLayout="normal"
-                            // className="table-container"
                             />
                         </div>
                     </>

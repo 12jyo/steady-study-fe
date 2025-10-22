@@ -58,3 +58,14 @@
     font-size: 1rem;
     transition: color 0.3s ease;
 }
+
+.watermark-email {
+    position: fixed;
+    bottom: 4rem;
+    right: 15.5rem;
+    color: #9ca3af;
+    font-size: 0.875rem;
+    opacity: 0.4;
+    font-style: italic;
+    user-select: none;
+}

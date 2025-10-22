@@ -10,6 +10,14 @@ export default function AdminDashboard() {
     const navigate = useNavigate();
     const location = useLocation();
 
+    // Redirect to home if not logged in
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            navigate("/");
+        }
+    }, [navigate]);
+
     const [students, setStudents] = useState([]);
     const [batches, setBatches] = useState([]);
 

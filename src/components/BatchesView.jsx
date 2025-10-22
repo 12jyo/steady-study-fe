@@ -30,6 +30,14 @@ export default function BatchesView() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [batchToDelete, setBatchToDelete] = useState(null);
 
+  // Redirect to home if not logged in
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      window.location.href = "/";
+    }
+  }, []);
+
   // Fetch batches
   useEffect(() => {
     fetchBatches();
@@ -228,9 +236,6 @@ export default function BatchesView() {
               rowData={batches}
               columnDefs={columnDefs}
               defaultColDef={defaultColDef}
-              pagination={true}
-              paginationPageSize={10}
-              paginationPageSizeSelector={[10, 20, 50]}
               rowHeight={45}
               headerHeight={56}
               domLayout="normal"

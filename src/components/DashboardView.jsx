@@ -53,9 +53,9 @@ export default function DashboardView({ students, batches }) {
   return (
     <div className="content-container">
       <h1 className="text-2xl font-bold mb-2">Dashboard</h1>
-      <p className="text-gray-600 mb-6">
+      {/* <p className="text-gray-600 mb-6">
         Welcome back, Admin. Here’s your school’s overview.
-      </p>
+      </p> */}
 
       {/* Summary Cards */}
       <div className="flex gap-[3rem] mb-10">

@@ -31,6 +31,14 @@ export default function StudentDashboard() {
     const [showMenu, setShowMenu] = useState(false);
     const navigate = useNavigate();
 
+    // Redirect to home if not logged in
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            navigate("/");
+        }
+    }, [navigate]);
+
     // Disable back navigation
     useEffect(() => {
         window.history.pushState(null, "", window.location.href);
@@ -253,8 +261,9 @@ export default function StudentDashboard() {
 
                 {/* PDF Viewer Modal */}
                 {selectedPdf && (
-                    <div className="inset-0 bg-black/70 flex items-center z-50 width-[80%] block justify-center">
-                        <div className="bg-white rounded-lg shadow-xl h-[83vh] flex flex-col relative">
+                    <div className="inset-0 bg-black/70 flex items-center z-50 justify-center">
+                        <div className="bg-white rounded-lg shadow-xl h-[83vh] flex flex-col relative w-[80%]">
+                            {/* Header */}
                             <div className="flex justify-between items-center p-3">
                                 <h3 className="font-semibold">PDF Preview</h3>
                                 <button
@@ -265,30 +274,48 @@ export default function StudentDashboard() {
                                 </button>
                             </div>
 
+                            {/* PDF Container */}
                             <div
-                                className="flex-1 overflow-y-auto bg-gray-100 p-4 w-[50rem]"
+                                className="flex-1 overflow-y-auto bg-gray-100 p-4 relative"
                                 onContextMenu={(e) => e.preventDefault()}
                             >
-                                <Document
-                                    file={memoizedFile}
-                                    onLoadSuccess={handleDocumentLoad}
-                                    onLoadError={(err) => console.error("PDF Load Error:", err)}
-                                    className="flex flex-col items-center gap-4 py-4"
-                                >
-                                    {numPages && (
-                                        <Page
-                                            key={`page_${pageNumber}`}
-                                            pageNumber={pageNumber}
-                                            scale={scale}
-                                            renderAnnotationLayer={false}
-                                            renderTextLayer={false}
-                                            rotate={rotation}
-                                        />
-                                    )}
-                                </Document>
+                                {/* 🔹 Watermark Overlay */}
+                                <div className="absolute inset-0 pointer-events-none z-10">
+                                    {/* Top-left logo watermark */}
+                                    <div className="absolute top-4 left-6 text-gray-400 text-lg font-semibold opacity-30 select-none flex items-center gap-2 w-[8rem]">
+                                        <SiStudyverse className="text-2xl text-[#3091c2]" />
+                                        <span>Steady-Study-8</span>
+                                    </div>
+
+                                    {/* Bottom-right student email watermark */}
+                                    <div className="watermark-email">
+                                        {localStorage.getItem("studentEmail") || ""}
+                                    </div>
+                                </div>
+
+                                {/* PDF Document */}
+                                <div className="flex justify-center">
+                                    <Document
+                                        file={memoizedFile}
+                                        onLoadSuccess={handleDocumentLoad}
+                                        onLoadError={(err) => console.error("PDF Load Error:", err)}
+                                        className="flex flex-col items-center gap-4 py-4 relative z-0"
+                                    >
+                                        {numPages && (
+                                            <Page
+                                                key={`page_${pageNumber}`}
+                                                pageNumber={pageNumber}
+                                                scale={scale}
+                                                renderAnnotationLayer={false}
+                                                renderTextLayer={false}
+                                                rotate={rotation}
+                                            />
+                                        )}
+                                    </Document>
+                                </div>
                             </div>
 
-
+                            {/* Footer Controls */}
                             <div className="flex justify-around items-center gap-8 p-4 bg-gray-50 h-[3rem]">
                                 {/* Navigation */}
                                 <div className="flex items-center gap-[1rem]">
@@ -298,7 +325,6 @@ export default function StudentDashboard() {
                                         className="text-gray-600 hover:text-blue-600 disabled:text-gray-300 pdf-page-button"
                                     >
                                         <FcPrevious />
-
                                     </button>
                                     <span className="text-sm text-gray-700">
                                         Page {pageNumber} of {numPages || "?"}
@@ -309,47 +335,39 @@ export default function StudentDashboard() {
                                         className="text-gray-600 hover:text-blue-600 disabled:text-gray-300 pdf-page-button"
                                     >
                                         <FcNext />
-
                                     </button>
                                 </div>
 
-                                {/* Zoom & Rotate Controls */}
+                                {/* Zoom & Rotate */}
                                 <div className="flex items-center gap-[1rem]">
-                                    <div className="flex flex-col items-center">
-                                        <Tooltip title="Zoom In" arrow>
-                                            <button
-                                                onClick={handleZoomIn}
-                                                className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full text-blue-600 hover:bg-blue-200 transition pdf-control"
-                                            >
-                                                <FaSearchPlus size={20} />
-                                            </button>
-                                        </Tooltip>
-                                    </div>
+                                    <Tooltip title="Zoom In" arrow>
+                                        <button
+                                            onClick={handleZoomIn}
+                                            className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full text-blue-600 hover:bg-blue-200 transition pdf-control"
+                                        >
+                                            <FaSearchPlus size={20} />
+                                        </button>
+                                    </Tooltip>
 
-                                    <div className="flex flex-col items-center">
-                                        <Tooltip title="Zoom Out" arrow>
-                                            <button
-                                                onClick={handleZoomOut}
-                                                className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full text-blue-600 hover:bg-blue-200 transition pdf-control"
-                                            >
-                                                <FaSearchMinus size={20} />
-                                            </button>
-                                        </Tooltip>
-                                    </div>
+                                    <Tooltip title="Zoom Out" arrow>
+                                        <button
+                                            onClick={handleZoomOut}
+                                            className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full text-blue-600 hover:bg-blue-200 transition pdf-control"
+                                        >
+                                            <FaSearchMinus size={20} />
+                                        </button>
+                                    </Tooltip>
 
-                                    <div className="flex flex-col items-center">
-                                        <Tooltip title="Rotate" arrow>
-                                            <button
-                                                onClick={handleRotate}
-                                                className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full text-blue-600 hover:bg-blue-200 transition pdf-control"
-                                            >
-                                                <FaSyncAlt size={20} />
-                                            </button>
-                                        </Tooltip>
-                                    </div>
+                                    <Tooltip title="Rotate" arrow>
+                                        <button
+                                            onClick={handleRotate}
+                                            className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full text-blue-600 hover:bg-blue-200 transition pdf-control"
+                                        >
+                                            <FaSyncAlt size={20} />
+                                        </button>
+                                    </Tooltip>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 )}
