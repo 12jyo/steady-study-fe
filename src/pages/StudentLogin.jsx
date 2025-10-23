@@ -9,6 +9,12 @@ import { getDeviceId } from "../utils/device";
 
 export default function StudentLogin() {
   const [email, setEmail] = useState("");
+  const [recentEmails, setRecentEmails] = useState([]);
+  // Load recent emails from localStorage
+  useEffect(() => {
+    const emails = JSON.parse(localStorage.getItem("recentStudentEmails") || "[]");
+    setRecentEmails(emails);
+  }, []);
   const [password, setPassword] = useState("");
   const [deviceId] = useState(getDeviceId());
   const [error, setError] = useState("");
@@ -53,6 +59,12 @@ export default function StudentLogin() {
       const res = await API.post("/student/login", { email, password, deviceId });
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("studentEmail", email);
+      // Store recent email
+      let emails = JSON.parse(localStorage.getItem("recentStudentEmails") || "[]");
+      emails = emails.filter(e => e !== email); // Remove duplicate
+      emails.unshift(email);
+      if (emails.length > 5) emails = emails.slice(0, 5);
+      localStorage.setItem("recentStudentEmails", JSON.stringify(emails));
       toast.success("Login successful!");
       navigate("/student-dashboard");
     } catch (err) {
@@ -65,7 +77,14 @@ export default function StudentLogin() {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen relative">
+    <div
+      className="flex justify-center items-center h-screen relative"
+      style={{
+        minHeight: '100vh',
+        width: '100vw',
+        overflow: 'auto',
+      }}
+    >
       <button
         onClick={() => navigate("/")}
         className="absolute top-5 left-5 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition back-btn"
@@ -75,7 +94,7 @@ export default function StudentLogin() {
       </button>
 
       <div className="flex flex-col items-center absolute top-[3rem]">
-        <div className="logo flex items-center text-2xl font-bold gap-2">
+        <div className="logo flex items-center text-2xl font-bold gap-2" style={{ color: "#2D164D" }}>
           <SiStudyverse size={32} />
           Steady-Study-8
         </div>
@@ -89,16 +108,22 @@ export default function StudentLogin() {
             <input
               type="email"
               placeholder="Email"
-              className={`border p-2 w-full mb-1 modal-input ${emailError ? "border-red-500" : ""
-                }`}
+              className={`border p-2 w-full mb-1 !w-[21rem] modal-input ${emailError ? "border-red-500" : ""}`}
               value={email}
               onChange={handleEmailChange}
+              list="recent-student-emails"
+              autoComplete="off"
               onBlur={() => {
                 // if (!email) setEmailError("Email is required.");
                 // else 
                 // if (!validateEmail(email)) setEmailError("Invalid email address.");
               }}
             />
+            <datalist id="recent-student-emails">
+              {recentEmails.map((em) => (
+                <option value={em} key={em} />
+              ))}
+            </datalist>
             {emailError && <p className="text-red-500 text-xs mt-1 error-text">{emailError}</p>}
           </div>
 
@@ -106,7 +131,7 @@ export default function StudentLogin() {
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
-              className={`border p-2 w-full modal-input pr-10 ${password && password.length < 6 ? "border-red-500" : ""
+              className={`border p-2 w-full !w-[21rem] modal-input pr-10 ${password && password.length < 6 ? "border-red-500" : ""
                 }`}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -124,7 +149,7 @@ export default function StudentLogin() {
 
         {error && <p className="error-text">{error}</p>}
 
-        <div className="mt-[2.3rem] flex absolute w-1/2 left-[26%]">
+        <div className="mt-[2.3rem] flex relative w-1/2">
           <button
             type="submit"
             disabled={isSubmitting}

@@ -5,6 +5,11 @@ import API from "../api/api";
 import "../../src/App.css";
 import "../styles/BatchesView.css";
 import { MdOutlineAddTask, MdDelete } from "react-icons/md";
+import "../styles/DeleteModal.css";
+import { FaFilePdf, FaCloudUploadAlt } from "react-icons/fa";
+import { IoEyeOutline } from "react-icons/io5";
+import "../styles/ViewResourceModal.css";
+import "../styles/AddResourceModal.css";
 import { IoIosEye } from "react-icons/io";
 import { Tooltip } from "@mui/material";
 import { AgGridReact } from "ag-grid-react";
@@ -106,6 +111,12 @@ export default function BatchesView() {
       setUploading(true);
       const fileArray = Array.from(files);
 
+      // Validate all files are PDFs
+      const nonPdf = fileArray.find(f => f.type !== "application/pdf" && !f.name.toLowerCase().endsWith(".pdf"));
+      if (nonPdf) {
+        return toast.error("Only PDF files are allowed.");
+      }
+
       for (const f of fileArray) {
         const formData = new FormData();
         formData.append("batchId", selectedBatch._id);
@@ -170,12 +181,13 @@ export default function BatchesView() {
   // AG Grid config
   const columnDefs = useMemo(
     () => [
-      { headerName: "Batch Name", field: "title", flex: 1, filter: "agTextColumnFilter" },
+      { headerName: "Batch Name", field: "title", flex: 1, filter: "agTextColumnFilter", headerClass: "admin-table-header"  },
       {
         headerName: "Actions",
         flex: 1,
         sortable: false,
         filter: false,
+        headerClass: "admin-table-header",
         cellRenderer: (params) => (
           <div className="flex justify-start items-center gap-4">
             <Tooltip title="Assign Resources" arrow>
@@ -183,7 +195,7 @@ export default function BatchesView() {
                 className="action-button assign-resources-btn"
                 onClick={() => handleAssignResources(params.data)}
               >
-                <MdOutlineAddTask />
+                <MdOutlineAddTask style={{ color: '#E08F35', fontSize: '1.5rem' }} />
               </button>
             </Tooltip>
             <Tooltip title="View Resources" arrow>
@@ -191,7 +203,7 @@ export default function BatchesView() {
                 className="action-button view-resources-btn"
                 onClick={() => handleViewResources(params.data)}
               >
-                <IoIosEye />
+                <IoIosEye style={{ color: '#442D77', fontSize: '1.5rem' }} />
               </button>
             </Tooltip>
             <Tooltip title="Delete Batch" arrow>
@@ -199,7 +211,7 @@ export default function BatchesView() {
                 className="action-button delete-batch-btn"
                 onClick={() => handleDeleteBatch(params.data)}
               >
-                <MdDelete />
+                <MdDelete style={{ color: '#dc2626', fontSize: '1.5rem' }} />
               </button>
             </Tooltip>
           </div>
@@ -231,7 +243,10 @@ export default function BatchesView() {
         {loading ? (
           <p>Loading batches...</p>
         ) : (
-          <div className="ag-theme-alpine grid-container">
+          <div
+            className="ag-theme-alpine admin-table-wrapper"
+            style={{ height: 500, width: "100%", borderRadius: '1.2rem', overflow: 'hidden', boxShadow: '0 4px 24px 0 #442D7722', background: 'linear-gradient(120deg, #FCF2A8 0%, #F2DA4C 80%, #E08F35 100%)' }}
+          >
             <AgGridReact
               rowData={batches}
               columnDefs={columnDefs}
@@ -239,6 +254,9 @@ export default function BatchesView() {
               rowHeight={45}
               headerHeight={56}
               domLayout="normal"
+              getRowClass={() => 'admin-table-row'}
+              getRowStyle={() => ({ background: 'rgba(252, 242, 168, 0.85)', borderBottom: '1.5px solid #F2DA4C' })}
+              headerClass="admin-table-header"
             />
           </div>
         )}
@@ -255,7 +273,7 @@ export default function BatchesView() {
                   placeholder="Batch Title"
                   value={newBatchTitle}
                   onChange={(e) => setNewBatchTitle(e.target.value)}
-                  className="border p-2 w-full rounded modal-input"
+                  className="modal-input"
                   required
                 />
               </form>
@@ -271,89 +289,132 @@ export default function BatchesView() {
         {showResourceModal && (
           <Modal
             open={showResourceModal}
+            className={isViewMode ? "view-resource-modal" : "manage-resource-modal"}
             title={
-              isViewMode
-                ? `Resources in ${selectedBatch?.title}`
-                : `Manage Resources for ${selectedBatch?.title}`
-            }
-            content={
-              <>
-                {/* Upload section */}
-                {!isViewMode && (
-                  <form onSubmit={handleUploadResource} className="mb-4">
-                    <input
-                      type="file"
-                      multiple
-                      onChange={(e) => setFiles(e.target.files)}
-                      className="border p-2 rounded w-full modal-input"
-                    />
-
-                    {files && (
-                      <p className="text-xs text-gray-500">
-                        {files.length} file{files.length > 1 ? "s" : ""} selected
-                      </p>
-                    )}
-
-                    <div className="flex justify-end gap-2">
-                      <button
-                        type="button"
-                        disabled={!files || uploading}
-                        onClick={handleUploadResource}
-                        className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
-                      >
-                        {uploading ? "Uploading..." : "Add Resource(s)"}
-                      </button>
-                    </div>
-                  </form>
-                )}
-
-                {/* Resource List */}
-                <div className="space-y-2">
-                  {resources.length === 0 ? (
-                    <p className="text-gray-500 text-sm">No resources found.</p>
-                  ) : (
-                    resources.map((r) => (
-                      <div
-                        key={r._id}
-                        className="flex justify-between items-center border p-2 rounded"
-                      >
-                        <span>{r.title}</span>
-                        <div className="flex items-center gap-2">
-                          {r.url ? (
-                            <a
-                              href={r.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-600 text-sm hover:underline"
+              <Modal
+                open={showResourceModal}
+                className={isViewMode ? "view-resource-modal" : "manage-resource-modal"}
+                title={
+                  isViewMode
+                    ? `Resources in ${selectedBatch?.title}`
+                    : `Manage Resources for ${selectedBatch?.title}`
+                }
+                content={
+                  <>
+                    {/* Upload section */}
+                    {!isViewMode && (
+                      <form onSubmit={handleUploadResource} className="add-resource-modal">
+                        <div className="add-resource-title">
+                          <FaCloudUploadAlt style={{ fontSize: '2rem', verticalAlign: 'middle', marginRight: 8 }} />
+                          Upload PDF Resource(s)
+                        </div>
+                        <div className="add-resource-upload">
+                          <label htmlFor="resource-upload-input" style={{ width: '100%' }}>
+                            <input
+                              id="resource-upload-input"
+                              type="file"
+                              accept="application/pdf"
+                              multiple
+                              onChange={(e) => setFiles(e.target.files)}
+                              style={{ display: 'none' }}
+                            />
+                            <div style={{
+                              border: '2px dashed #3091c2',
+                              borderRadius: 8,
+                              padding: '1.2rem 1rem',
+                              background: '#fff',
+                              cursor: 'pointer',
+                              textAlign: 'center',
+                              color: '#22678a',
+                              width: '100%',
+                              transition: 'border-color 0.2s',
+                              fontSize: '1rem',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              gap: 8
+                            }}
+                            className="add-resource-upload-box"
                             >
-                              View
-                            </a>
-                          ) : (
-                            <span className="text-gray-400 text-xs">(no link)</span>
-                          )}
-                          {isViewMode && (
-                            <button
-                              className="text-red-600 text-xs border border-red-600 rounded px-2 py-1 ml-2 hover:bg-red-50"
-                              onClick={() => handleDeleteResource(r._id)}
-                            >
-                              Delete
-                            </button>
+                              <FaFilePdf style={{ fontSize: '2.2rem', color: '#dc2626', marginBottom: 4 }} />
+                              <span style={{ fontWeight: 500 }}>Click or drag PDF(s) here</span>
+                              <span style={{ fontSize: '0.95rem', color: '#888' }}>Only PDF files allowed</span>
+                            </div>
+                          </label>
+                          {files && (
+                            <div className="add-resource-file-info">
+                              {Array.from(files).map((f, idx) => (
+                                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                  <FaFilePdf style={{ color: '#dc2626', fontSize: '1.1rem' }} />
+                                  <span>{f.name}</span>
+                                </div>
+                              ))}
+                            </div>
                           )}
                         </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </>
-            }
-            onSave={!isViewMode ? handleUploadResource : undefined}
-            onCancel={() => setShowResourceModal(false)}
-            saveText={
-              !isViewMode
-                ? uploading
-                  ? "Uploading..."
-                  : "Add Resource(s)"
-                : undefined
+                        <div className="add-resource-actions">
+                          <button
+                            type="submit"
+                            disabled={!files || uploading}
+                            className="add-resource-btn"
+                          >
+                            {uploading ? "Uploading..." : "Add Resource(s)"}
+                          </button>
+                        </div>
+                      </form>
+                    )}
+
+                    {/* Resource List */}
+                    <div className="view-resource-list">
+                      {resources.length === 0 ? (
+                        <div className="view-resource-empty">No resources found.</div>
+                      ) : (
+                        resources.map((r) => (
+                          <div key={r._id} className="view-resource-item">
+                            <div className="view-resource-title">
+                              <FaFilePdf style={{ color: '#dc2626', fontSize: '1.3rem' }} />
+                              <span>{r.title}</span>
+                            </div>
+                            <div className="view-resource-actions">
+                              {r.url ? (
+                                <a
+                                  href={r.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="view-resource-link"
+                                  style={{ padding: 0, border: 'none', background: 'none', height: '2.1rem', width: '2.1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                  title="View PDF"
+                                >
+                                  <Tooltip title="View PDF" placement="top">
+                                    <span><IoEyeOutline style={{ fontSize: '1.5rem', color: '#2563eb' }} /></span>
+                                  </Tooltip>
+                                </a>
+                              ) : (
+                                <span className="text-gray-400 text-xs">(no link)</span>
+                              )}
+                              {isViewMode && (
+                                <Tooltip title="Delete Resource" placement="top">
+                                  <button
+                                    className="view-resource-delete"
+                                    style={{ padding: 0, border: 'none', background: 'none', height: '2.1rem', width: '2.1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                    onClick={() => handleDeleteResource(r._id)}
+                                  >
+                                    <MdDelete style={{ fontSize: '1.5rem', color: '#dc2626' }} />
+                                  </button>
+                                </Tooltip>
+                              )}
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </>
+                }
+                onSave={undefined}
+                onCancel={() => setShowResourceModal(false)}
+                saveText={""}
+                cancelText="Close"
+              />
             }
             cancelText={isViewMode ? "Close" : "Cancel"}
           />
@@ -363,20 +424,42 @@ export default function BatchesView() {
         {showDeleteModal && (
           <Modal
             open={showDeleteModal}
-            title="Delete Batch Confirmation"
+            className="delete-modal"
+            title={null}
             content={
-              <div>
-                Are you sure you want to delete the batch{" "}
-                <b>{batchToDelete?.title}</b> and all its students? This action cannot be undone.
+              <div className="delete-modal-content">
+                <MdDelete className="delete-modal-icon" />
+                <div className="delete-modal-title">Delete Batch?</div>
+                <div className="delete-modal-message">
+                  Are you sure you want to delete the batch <span className="delete-modal-batch">{batchToDelete?.title}</span> and all its students?<br />
+                  <span style={{ color: '#dc2626', fontWeight: 600 }}>This action cannot be undone.</span>
+                </div>
+                <div className="delete-modal-actions">
+                  <button
+                    className="save-button"
+                    onClick={confirmDeleteBatch}
+                  >
+                    Yes, Delete
+                  </button>
+                  <button
+                    className="cancel-button"
+                    onClick={() => {
+                      setShowDeleteModal(false);
+                      setBatchToDelete(null);
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             }
-            onSave={confirmDeleteBatch}
+            onSave={undefined}
             onCancel={() => {
               setShowDeleteModal(false);
               setBatchToDelete(null);
             }}
-            saveText="Yes, Delete"
-            cancelText="Cancel"
+            saveText={""}
+            cancelText={""}
           />
         )}
       </div>

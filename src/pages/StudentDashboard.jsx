@@ -262,9 +262,9 @@ export default function StudentDashboard() {
                 {/* PDF Viewer Modal */}
                 {selectedPdf && (
                     <div className="inset-0 bg-black/70 flex items-center z-50 justify-center">
-                        <div className="bg-white rounded-lg shadow-xl h-[83vh] flex flex-col relative w-[80%]">
+                        <div className="pdf-modal">
                             {/* Header */}
-                            <div className="flex justify-between items-center p-3">
+                            <div className="pdf-modal-header">
                                 <h3 className="font-semibold">PDF Preview</h3>
                                 <button
                                     onClick={handleClose}
@@ -276,17 +276,16 @@ export default function StudentDashboard() {
 
                             {/* PDF Container */}
                             <div
-                                className="flex-1 overflow-y-auto bg-gray-100 p-4 relative"
+                                className="pdf-modal-content"
                                 onContextMenu={(e) => e.preventDefault()}
                             >
                                 {/* 🔹 Watermark Overlay */}
-                                <div className="absolute inset-0 pointer-events-none z-10">
+                                <div className="pointer-events-none z-10">
                                     {/* Top-left logo watermark */}
-                                    <div className="absolute top-4 left-6 text-gray-400 text-lg font-semibold opacity-30 select-none flex items-center gap-2 w-[8rem]">
+                                    <div className="watermark-logo">
                                         <SiStudyverse className="text-2xl text-[#3091c2]" />
                                         <span>Steady-Study-8</span>
                                     </div>
-
                                     {/* Bottom-right student email watermark */}
                                     <div className="watermark-email">
                                         {localStorage.getItem("studentEmail") || ""}
@@ -316,13 +315,13 @@ export default function StudentDashboard() {
                             </div>
 
                             {/* Footer Controls */}
-                            <div className="flex justify-around items-center gap-8 p-4 bg-gray-50 h-[3rem]">
+                            <div className="pdf-modal-footer">
                                 {/* Navigation */}
                                 <div className="flex items-center gap-[1rem]">
                                     <button
                                         onClick={handlePrev}
                                         disabled={pageNumber <= 1}
-                                        className="text-gray-600 hover:text-blue-600 disabled:text-gray-300 pdf-page-button"
+                                        className={`text-gray-600 hover:text-blue-600 disabled:text-gray-300 pdf-page-button${pageNumber <= 1 ? ' disabled' : ''}`}
                                     >
                                         <FcPrevious />
                                     </button>
@@ -332,7 +331,7 @@ export default function StudentDashboard() {
                                     <button
                                         onClick={handleNext}
                                         disabled={pageNumber >= numPages}
-                                        className="text-gray-600 hover:text-blue-600 disabled:text-gray-300 pdf-page-button"
+                                        className={`text-gray-600 hover:text-blue-600 disabled:text-gray-300 pdf-page-button${pageNumber >= numPages ? ' disabled' : ''}`}
                                     >
                                         <FcNext />
                                     </button>

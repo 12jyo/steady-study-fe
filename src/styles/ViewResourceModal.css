@@ -1,0 +1,82 @@
+/* Impressive styles for the View Resource modal */
+.view-resource-list {
+  background: linear-gradient(135deg, #f8fafc 0%, #e0e7ef 100%);
+  border-radius: 18px;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.10);
+  padding: 1.5rem 2rem 1.5rem 2rem;
+  max-width: 480px;
+  margin: 0 auto;
+}
+.view-resource-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(48,145,194,0.06);
+  padding: 1rem 1.2rem;
+  margin-bottom: 1rem;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.view-resource-item:hover {
+  box-shadow: 0 4px 16px rgba(48,145,194,0.13);
+  transform: translateY(-2px) scale(1.01);
+}
+.view-resource-title {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-size: 1.08rem;
+  font-weight: 500;
+  color: #22678a;
+}
+/* Button group for alignment */
+.view-resource-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-left: 1rem;
+}
+
+.view-resource-link {
+  color: #2563eb;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 0.98rem;
+  border: 1px solid #2563eb;
+  border-radius: 6px;
+  padding: 0.3rem 0.8rem;
+  transition: background 0.2s, color 0.2s;
+  display: flex;
+  align-items: center;
+  height: 2.1rem;
+}
+.view-resource-link:hover {
+  background: #2563eb;
+  color: #fff;
+}
+  
+.view-resource-delete {
+  color: #dc2626;
+  border: 1px solid #dc2626;
+  border-radius: 6px;
+  padding: 0.3rem 0.8rem;
+  font-size: 0.98rem;
+  font-weight: 600;
+  background: #fff;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  display: flex;
+  align-items: center;
+  height: 2.1rem;
+}
+.view-resource-delete:hover {
+  background: #dc2626;
+  color: #fff;
+}
+.view-resource-empty {
+  color: #888;
+  text-align: center;
+  font-size: 1.05rem;
+  margin: 1.5rem 0;
+}

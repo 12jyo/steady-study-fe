@@ -9,6 +9,12 @@ import { getDeviceId } from "../utils/device"; // ✅ Import helper
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
+  const [recentEmails, setRecentEmails] = useState([]);
+  // Load recent emails from localStorage
+  useEffect(() => {
+    const emails = JSON.parse(localStorage.getItem("recentAdminEmails") || "[]");
+    setRecentEmails(emails);
+  }, []);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -51,6 +57,13 @@ export default function AdminLogin() {
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("deviceId", deviceId);
 
+      // Store recent email
+      let emails = JSON.parse(localStorage.getItem("recentAdminEmails") || "[]");
+      emails = emails.filter(e => e !== email); // Remove duplicate
+      emails.unshift(email);
+      if (emails.length > 5) emails = emails.slice(0, 5);
+      localStorage.setItem("recentAdminEmails", JSON.stringify(emails));
+
       toast.success("Login successful!");
       navigate("/dashboard");
     } catch (err) {
@@ -63,7 +76,14 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="flex flex-col h-screen justify-center items-center relative">
+    <div
+      className="flex flex-col h-screen justify-center items-center relative"
+      style={{
+        minHeight: '100vh',
+        width: '100vw',
+        overflow: 'auto',
+      }}
+    >
       {/* Back Button */}
       <button
         onClick={() => navigate("/")}
@@ -95,7 +115,14 @@ export default function AdminLogin() {
             }`}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            list="recent-admin-emails"
+            autoComplete="off"
           />
+          <datalist id="recent-admin-emails">
+            {recentEmails.map((em) => (
+              <option value={em} key={em} />
+            ))}
+          </datalist>
 
           {/* Password Input */}
           <div className="relative">
@@ -123,7 +150,7 @@ export default function AdminLogin() {
         {error && <p className="error-text mt-2 text-center">{error}</p>}
 
         {/* Submit Button */}
-        <div className="mt-[2.3rem] flex absolute w-1/2 left-[26%]">
+        <div className="mt-[2.3rem] flex relative w-1/2">
           <button
             type="submit"
             disabled={isSubmitting}

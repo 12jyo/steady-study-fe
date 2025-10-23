@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import Navbar from "./Navbar";
 import Modal from "./Modal";
 import API from "../api/api";
-import { FaUserPlus } from "react-icons/fa";
+import { FaUserPlus, FaInfoCircle } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
 import { toast } from "react-toastify";
 import { Tooltip } from "@mui/material";
@@ -11,9 +11,51 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import "../../src/App.css";
 import "../styles/StudentsView.css";
+import "../styles/DeviceEdit.css";
+import "../styles/AssignBatchModal.css";
 import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
 ModuleRegistry.registerModules([AllCommunityModule]);
 import '../styles/modal.css';
+
+function DeviceEditPopup({ initialValue, onSave, onCancel }) {
+    const [value, setValue] = useState(initialValue);
+    const [closing, setClosing] = useState(false);
+    const handleClose = (cb) => {
+        setClosing(true);
+        setTimeout(cb, 180); // match CSS transition duration
+    };
+    return (
+        <>
+            <div
+                className={"device-edit-backdrop" + (closing ? " device-edit-fadeout" : "")}
+                onClick={() => handleClose(onCancel)}
+            />
+            <div
+                className={"device-edit-inline device-edit-inline-absolute" + (closing ? " device-edit-fadeout" : "")}
+            >
+                <input
+                    type="number"
+                    min="1"
+                    max="5"
+                    value={value}
+                    onChange={(e) => setValue(e.target.value.replace(/[^0-9]/g, ""))}
+                />
+                <button
+                    className="device-edit-save"
+                    onClick={() => handleClose(() => onSave(value))}
+                >
+                    Save
+                </button>
+                <button
+                    className="device-edit-cancel"
+                    onClick={() => handleClose(onCancel)}
+                >
+                    Cancel
+                </button>
+            </div>
+        </>
+    );
+}
 
 export default function StudentsView() {
     const [students, setStudents] = useState([]);
@@ -26,7 +68,7 @@ export default function StudentsView() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [editingId, setEditingId] = useState(null);
-    const [newDeviceLimit, setNewDeviceLimit] = useState(2);
+    const [, setNewDeviceLimit] = useState(2);
 
     // Redirect to home if not logged in
     useEffect(() => {
@@ -140,12 +182,12 @@ export default function StudentsView() {
     };
 
     // Update device limit
-    const handleUpdateDeviceLimit = async (studentId) => {
+    const handleUpdateDeviceLimit = useCallback(async (studentId, value) => {
         const token = localStorage.getItem("token");
         try {
             await API.put(
                 "/admin/set-student-device-limit",
-                { studentId, deviceLimit: Number(newDeviceLimit) },
+                { studentId, deviceLimit: Number(value) },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             toast.success("Device limit updated successfully");
@@ -153,7 +195,7 @@ export default function StudentsView() {
             setStudents((prev) =>
                 prev.map((s) =>
                     s._id === studentId
-                        ? { ...s, deviceLimit: Number(newDeviceLimit) }
+                        ? { ...s, deviceLimit: Number(value) }
                         : s
                 )
             );
@@ -162,7 +204,7 @@ export default function StudentsView() {
             console.error("Device limit update failed:", err);
             toast.error(err.response?.data?.message || "Error updating device limit");
         }
-    };
+    }, []);
 
     // Assign batches
     const handleAssignClick = (student) => {
@@ -218,51 +260,34 @@ export default function StudentsView() {
             {
                 headerName: "Name",
                 field: "name",
-                // flex: 1,
+                flex: 1,
                 filter: "agTextColumnFilter",
+                headerClass: "admin-table-header"
             },
             {
                 headerName: "Email",
                 field: "email",
-                // flex: 1,
+                flex: 1,
                 filter: "agTextColumnFilter",
+                headerClass: "admin-table-header"
             },
             {
-                headerName: "No. of Device Access",
+                headerName:
+
+                    "No. of Device Access",
                 field: "deviceLimit",
-                // flex: 1,
+                flex: 1,
                 filter: "agNumberColumnFilter",
+                headerClass: "admin-table-header",
                 cellRenderer: (params) => {
                     const s = params.data;
-                    return editingId === s._id ? (
-                        <div className="flex items-center gap-2">
-                            <input
-                                type="number"
-                                min="1"
-                                max="5"
-                                value={newDeviceLimit}
-                                onChange={(e) => setNewDeviceLimit(e.target.value)}
-                                className="border p-1 w-16 rounded text-center modal-input"
-                            />
-                            <button
-                                className="text-green-600 font-medium hover:underline"
-                                onClick={() => handleUpdateDeviceLimit(s._id)}
-                            >
-                                Save
-                            </button>
-                            <button
-                                className="text-gray-500 hover:underline"
-                                onClick={() => setEditingId(null)}
-                            >
-                                Cancel
-                            </button>
-                        </div>
-                    ) : (
+                    return (
                         <div className="flex items-center justify-start gap-[1rem]">
                             <span>{s.deviceLimit}</span>
                             <Tooltip title="Edit No. of Device Access" arrow>
                                 <button
                                     className="edit-btn"
+                                    style={{ background: 'linear-gradient(90deg,#FCF2A8 0%,#E08F35 100%)', borderRadius: '50%', padding: '0.3rem' }}
                                     onClick={() => {
                                         setEditingId(s._id);
                                         setNewDeviceLimit(s.deviceLimit);
@@ -270,7 +295,7 @@ export default function StudentsView() {
                                 >
                                     <MdEdit
                                         size={20}
-                                        className="text-gray-600 hover:text-blue-600 transition-colors"
+                                        className="text-[#442D77] hover:text-[#E08F35] transition-colors"
                                     />
                                 </button>
                             </Tooltip>
@@ -283,6 +308,7 @@ export default function StudentsView() {
                 field: "batchIds",
                 // flex: 1.3,
                 suppressHeaderFilterButton: true,
+                headerClass: "admin-table-header",
                 cellRenderer: (params) => (
                     <button
                         className="flex items-center gap-1 text-blue-600 font-medium assign-btn"
@@ -294,8 +320,9 @@ export default function StudentsView() {
             },
             {
                 headerName: "Actions",
-                // flex: 1,
+                flex: 1,
                 suppressHeaderFilterButton: true,
+                headerClass: "admin-table-header",
                 cellRenderer: (params) => (
                     <button
                         className="reset-pwd-btn"
@@ -308,13 +335,12 @@ export default function StudentsView() {
                 ),
             },
         ],
-        [editingId, newDeviceLimit]
+        []
     );
 
     return (
         <>
             <Navbar />
-
             <div className="content-container">
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-2xl font-bold">Students</h2>
@@ -325,7 +351,6 @@ export default function StudentsView() {
                         Add Student
                     </button>
                 </div>
-
                 {loading ? (
                     <p>Loading students...</p>
                 ) : (
@@ -338,96 +363,115 @@ export default function StudentsView() {
                                 className="search-input"
                             />
                         </div>
-                        <div className="ag-theme-alpine grid-container">
-                            <AgGridReact
-                                rowData={students}
-                                columnDefs={columnDefs}
-                                pagination
-                                rowHeight={45}
-                                headerHeight={56}
-                                paginationPageSize={25}
-                                paginationPageSizeSelector={[25, 50, 100, 200]}
-                                quickFilterText={quickFilterText}
-                                suppressCellFocus
-                                defaultColDef={defaultColDef}
-                                domLayout="normal"
-                            />
+                        <div style={{ width: '100%', overflowX: 'auto' }}>
+                            <div
+                                className="ag-theme-alpine admin-table-wrapper"
+                                style={{ height: 670, minWidth: 850, borderRadius: '1.2rem', overflow: 'hidden', boxShadow: '0 4px 24px 0 #442D7722', background: 'linear-gradient(120deg, #FCF2A8 0%, #F2DA4C 80%, #E08F35 100%)' }}
+                            >
+                                <AgGridReact
+                                    rowData={students}
+                                    columnDefs={columnDefs}
+                                    pagination
+                                    rowHeight={45}
+                                    headerHeight={56}
+                                    paginationPageSize={25}
+                                    paginationPageSizeSelector={[25, 50, 100, 200]}
+                                    quickFilterText={quickFilterText}
+                                    suppressCellFocus
+                                    defaultColDef={defaultColDef}
+                                    domLayout="normal"
+                                    getRowClass={() => 'admin-table-row'}
+                                    getRowStyle={() => ({ background: 'rgba(252, 242, 168, 0.85)', borderBottom: '1.5px solid #F2DA4C' })}
+                                    headerClass="admin-table-header"
+                                />
+                            </div>
                         </div>
+                        {/* Device Edit Popup rendered outside the table to prevent shake */}
+                        {editingId && (
+                            <DeviceEditPopup
+                                initialValue={students.find(s => s._id === editingId)?.deviceLimit}
+                                onSave={(val) => handleUpdateDeviceLimit(editingId, val)}
+                                onCancel={() => setEditingId(null)}
+                            />
+                        )}
                     </>
                 )}
+                {/* Add Student Modal */}
+                {showAddModal && (
+                    <Modal
+                        open={showAddModal}
+                        title="Add New Student"
+                        content={
+                            <form
+                                id="add-student-form"
+                                onSubmit={handleAddStudent}
+                                className="flex gap-[1rem] flex-col"
+                            >
+                                <input
+                                    type="text"
+                                    placeholder="Full Name"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    className="modal-input"
+                                    required
+                                />
+                                <input
+                                    type="email"
+                                    placeholder="Email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="modal-input"
+                                    required
+                                />
+                            </form>
+                        }
+                        onSave={() =>
+                            document.getElementById("add-student-form").requestSubmit()
+                        }
+                        onCancel={() => setShowAddModal(false)}
+                        saveText="Generate CSV"
+                        cancelText="Cancel"
+                    />
+                )}
+                {/* Assign Batch Modal */}
+                {showBatchModal && (
+                    <Modal
+                        open={showBatchModal}
+                        title={null}
+                        content={
+                            <form
+                                id="assign-batch-form"
+                                className="assign-batch-modal-content"
+                                onSubmit={(e) => {
+                                    e.preventDefault();
+                                    handleSaveBatches();
+                                }}
+                            >
+                                <div className="assign-batch-title">
+                                    Assign Batches for {selectedStudent?.name || ""}
+                                </div>
+                                <div className="assign-batch-list">
+                                    {batches.map((batch) => (
+                                        <label key={batch._id} className="assign-batch-label">
+                                            <input
+                                                type="checkbox"
+                                                className="modal-input"
+                                                checked={selectedBatches.includes(batch._id)}
+                                                onChange={() => handleBatchToggle(batch._id)}
+                                            />
+                                            {batch.title}
+                                        </label>
+                                    ))}
+                                </div>
+                            </form>
+                        }
+                        onSave={handleSaveBatches}
+                        onCancel={() => setShowBatchModal(false)}
+                        saveText="Save"
+                        cancelText="Cancel"
+                    />
+                )}
             </div>
-
-            {/* Add Student Modal */}
-            {showAddModal && (
-                <Modal
-                    open={showAddModal}
-                    title="Add New Student"
-                    content={
-                        <form
-                            id="add-student-form"
-                            onSubmit={handleAddStudent}
-                            className="flex gap-[1rem] flex-col"
-                        >
-                            <input
-                                type="text"
-                                placeholder="Full Name"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                className="border p-2 w-full rounded modal-input"
-                                required
-                            />
-                            <input
-                                type="email"
-                                placeholder="Email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className="border p-2 w-full rounded modal-input"
-                                required
-                            />
-                        </form>
-                    }
-                    onSave={() =>
-                        document.getElementById("add-student-form").requestSubmit()
-                    }
-                    onCancel={() => setShowAddModal(false)}
-                    saveText="Generate CSV"
-                    cancelText="Cancel"
-                />
-            )}
-
-            {/* Assign Batch Modal */}
-            {showBatchModal && (
-                <Modal
-                    open={showBatchModal}
-                    title={`Assign Batches for ${selectedStudent?.name || ""}`}
-                    content={
-                        <form
-                            id="assign-batch-form"
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                handleSaveBatches();
-                            }}
-                        >
-                            <div className="space-y-2">
-                                {batches.map((batch) => (
-                                    <label key={batch._id} className="flex items-center gap-2">
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedBatches.includes(batch._id)}
-                                            onChange={() => handleBatchToggle(batch._id)}
-                                        />
-                                        {batch.title}
-                                    </label>
-                                ))}
-                            </div>
-                        </form>
-                    }
-                    onSave={handleSaveBatches}
-                    onCancel={() => setShowBatchModal(false)}
-                    saveText="Save"
-                    cancelText="Cancel"
-                />
-            )}
         </>
     );
 }

@@ -1,3 +1,4 @@
+import "../styles/ViewStudentsModal.css";
 import { FaUsers, FaGraduationCap } from "react-icons/fa";
 import { AgGridReact } from "ag-grid-react";
 import { useState } from "react";
@@ -23,11 +24,12 @@ export default function DashboardView({ students, batches }) {
 
   // AG Grid columns for batches
   const batchColumnDefs = [
-    { headerName: "Batch Name", field: "title", flex: 1 },
+    { headerName: "Batch Name", field: "title", flex: 1, headerClass: "admin-table-header" },
     {
-      headerName: "Students",
+      headerName: "No. of Students",
       field: "studentsCount",
       flex: 1,
+      headerClass: "admin-table-header",
       valueGetter: (params) =>
         students.filter(
           (stu) =>
@@ -39,9 +41,10 @@ export default function DashboardView({ students, batches }) {
       headerName: "Action",
       field: "action",
       flex: 1,
+      headerClass: "admin-table-header",
       cellRenderer: (params) => (
         <button
-          className="view-btn"
+          className="action-btn dashboard-view-btn"
           onClick={() => handleViewBatch(params.data)}
         >
           View
@@ -58,7 +61,7 @@ export default function DashboardView({ students, batches }) {
       </p> */}
 
       {/* Summary Cards */}
-      <div className="flex gap-[3rem] mb-10">
+  <div className="dashboard-cards-container">
         <div className="card">
           <div className="card-icon">
             <FaUsers className="icon" />
@@ -84,8 +87,8 @@ export default function DashboardView({ students, batches }) {
       <div className="batch-table-container bg-white rounded-lg shadow mt-[3rem] p-5">
         <h2 className="text-lg font-semibold mb-4">Student Batches</h2>
         <div
-          className="ag-theme-alpine"
-          style={{ height: 394, width: "100%" }}
+          className="ag-theme-alpine admin-table-wrapper"
+          style={{ height: 394, width: "100%", borderRadius: '1.2rem', overflow: 'hidden', boxShadow: '0 4px 24px 0 #442D7722', background: 'linear-gradient(120deg, #FCF2A8 0%, #F2DA4C 80%, #E08F35 100%)' }}
         >
           <AgGridReact
             rowData={batches}
@@ -93,6 +96,9 @@ export default function DashboardView({ students, batches }) {
             domLayout="normal"
             rowHeight={50}
             headerHeight={52}
+            getRowClass={() => 'admin-table-row'}
+            getRowStyle={() => ({ background: 'rgba(252, 242, 168, 0.85)', borderBottom: '1.5px solid #F2DA4C' })}
+            headerClass="admin-table-header"
           />
         </div>
       </div>
@@ -100,18 +106,26 @@ export default function DashboardView({ students, batches }) {
       {/* Modal for students in batch */}
       <Modal
         open={openModal}
-        title={modalBatch ? `Students in ${modalBatch.title}` : "Students"}
+        className="dashboard-view-modal"
+        title={null}
         content={
-          <div>
+          <div className="view-students-modal-content">
+            <div className="view-students-title">
+              {modalBatch ? `Students in ${modalBatch.title}` : "Students"}
+            </div>
             {modalStudents.length === 0 ? (
-              <div className="text-gray-500 italic">
-                No students in this batch.
-              </div>
+              <div className="view-students-empty">No students in this batch.</div>
             ) : (
-              <ul className="list-disc pl-5">
+              <ul className="view-students-list">
                 {modalStudents.map((stu) => (
-                  <li key={stu._id}>
-                    {stu.name} ({stu.email})
+                  <li key={stu._id} className="view-student-item">
+                    <div className="view-student-avatar">
+                      {stu.name?.[0]?.toUpperCase() || stu.email?.[0]?.toUpperCase() || "S"}
+                    </div>
+                    <div>
+                      <div>{stu.name}</div>
+                      <div className="view-student-email">{stu.email}</div>
+                    </div>
                   </li>
                 ))}
               </ul>

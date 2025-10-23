@@ -1,68 +1,61 @@
-.MuiDialogTitle-root {
-    margin: 0;
-    font-family: "ui-monospace";
-    font-weight: 500;
-    font-size: 1.1rem !important;
-    line-height: 1.6;
-    letter-spacing: 0.0075em;
-    padding: 12px 18px !important;
-}
 
-.cancel-button {
-    font-size: 14px !important;
-    padding: 8px 24px !important;
-    cursor: pointer !important;
-    text-transform: none !important;
-    white-space: nowrap !important;
-    line-height: 1.25rem !important;
-    border: 1px solid #98a2b3 !important;
-    background: #ffffff !important;
-    color: #1d2939 !important;
-    border-radius: 8px !important;
-    font-weight: 600 !important;
-}
-
-.cancel-button:hover {
-    border: 1px solid #22678a !important;
-    color: #22678a !important;
-    background-color: rgba(0, 0, 0, 0) !important;
-}
-
+/* Unified impressive modal button/input styles for all modals */
 .save-button {
-    align-items: center !important;
-    justify-content: center !important;
-    position: relative !important;
-    background-color: transparent !important;
-    vertical-align: middle !important;
-    font-family: Inter, sans-serif1 !important;
-    font-size: 0.875rem !important;
-    line-height: 1.75 !important;
-    text-transform: uppercase !important;
-    min-width: 64px !important;
-    border-radius: 8px !important;
-    cursor: pointer !important;
-    white-space: nowrap !important;
-    line-height: 1.25rem !important;
-    background: #3091c2 !important;
-    color: #ffffff !important;
-    padding: 8px 16px !important;
-    font-weight: 500 !important;
+    min-width: 110px;
+    padding: 0.7rem 1.5rem;
+    font-size: 1.08rem;
+    font-weight: 700;
+    border-radius: 0.7rem !important;
+    border: 2px solid #E08F35 !important;
+    outline: none;
+    margin: 0 0.5rem;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s, box-shadow 0.18s, border 0.18s;
+    box-shadow: 0 2px 12px #442D7722;
+    letter-spacing: 0.04em;
+    background: linear-gradient(90deg, #442D77 60%, #2D164D 100%) !important;
+    color: #FCF2A8 !important;
+    text-transform: uppercase;
+}
+.save-button:hover, .save-button:focus {
+    background: linear-gradient(90deg, #E08F35 60%, #F2DA4C 100%) !important;
+    color: #442D77 !important;
+    border: 2px solid #442D77 !important;
+}
+.cancel-button {
+    min-width: 110px;
+    padding: 0.7rem 1.5rem;
+    font-size: 1.08rem;
+    font-weight: 700;
+    border-radius: 0.7rem !important;
+    border: 2px solid #E08F35 !important;
+    outline: none;
+    margin: 0 0.5rem;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s, box-shadow 0.18s, border 0.18s;
+    box-shadow: 0 2px 12px #442D7722;
+    letter-spacing: 0.04em;
+    background: #fff !important;
+    color: #442D77 !important;
+    text-transform: uppercase;
+}
+.cancel-button:hover, .cancel-button:focus {
+    background: #F2DA4C !important;
+    color: #2D164D !important;
+    border: 2px solid #442D77 !important;
 }
 
-.save-button:hover {
-    background: #22678a !important;
-    color: #ffffff !important;
-}
-
-.modal-input {
-  height: 1.6rem;
-  width: 24rem;
-  border-radius: 0.3rem;
-  padding: 0.1rem 0.5rem;
-}
-
-.modal-input:focus, .modal-input:active {
-  outline: none;
-  border-color: #1e88e5;
-  box-shadow: 0 0 4px rgba(30, 136, 229, 0.5);
+/* Impressive modal header style for all modals */
+.modal-header {
+    background: linear-gradient(90deg, #442D77 60%, #2D164D 100%);
+    color: #FCF2A8;
+    font-size: 1.35rem;
+    font-weight: 800;
+    padding: 1.1rem 2rem 1rem 2rem;
+    letter-spacing: 0.04em;
+    box-shadow: 0 2px 12px #442D7722;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: 'Inter', 'Segoe UI', 'Arial', sans-serif;
 }

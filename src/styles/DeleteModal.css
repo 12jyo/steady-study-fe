@@ -1,0 +1,83 @@
+/* Impressive styles for the Delete Confirmation modal */
+.delete-modal-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem 1.5rem 0.5rem 1.5rem;
+  text-align: center;
+}
+
+.delete-modal-icon {
+  color: #dc2626;
+  font-size: 2.8rem;
+  margin-bottom: 1rem;
+}
+
+.delete-modal-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #dc2626;
+  margin-bottom: 0.7rem;
+}
+
+.delete-modal-message {
+  font-size: 1.08rem;
+  color: #1d2939;
+  margin-bottom: 1.2rem;
+}
+
+.delete-modal-batch {
+  font-weight: 700;
+  color: #22678a;
+}
+
+.delete-modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1.2rem;
+  margin-top: 1.2rem;
+}
+
+.delete-modal-btn {
+  padding: 0.6rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  border: none;
+  background: linear-gradient(90deg, #dc2626 0%, #ff6b6b 100%);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.08);
+  transition: background 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.delete-modal-btn:disabled {
+  background: #fca5a5;
+  color: #fff;
+  cursor: not-allowed;
+}
+
+.delete-modal-btn:hover:not(:disabled) {
+  background: linear-gradient(90deg, #b91c1c 0%, #dc2626 100%);
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.13);
+}
+
+.delete-modal-cancel {
+  background: #f3f4f6;
+  color: #1d2939;
+  border: 1px solid #98a2b3;
+  transition: background 0.2s, color 0.2s;
+}
+
+.delete-modal-cancel:hover {
+  background: #e5e7eb;
+  color: #dc2626;
+  border: 1px solid #dc2626;
+}
+
+.delete-modal {
+  .MuiDialogTitle-root,
+  .MuiDialogActions-root {
+    display: none !important;
+  }
+}

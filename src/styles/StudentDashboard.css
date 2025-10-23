@@ -1,3 +1,94 @@
+.pdf-modal {
+    width: 80vw;
+    max-width: 900px;
+    height: 77vh;
+    min-height: 340px;
+    max-height: 95vh;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 1.1rem;
+    box-shadow: 0 8px 32px 0 #442D7722, 0 2px 8px #E08F3533;
+    position: relative;
+}
+
+.pdf-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.2rem 0.5rem 1.2rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.pdf-modal-content {
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: auto;
+    background: #f3f4f6;
+    padding: 1rem;
+    position: relative;
+}
+
+.pdf-modal-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+    gap: 1.2rem;
+    padding: 0.7rem 1rem;
+    background: #f9fafb;
+    min-height: 3rem;
+}
+
+@media (max-width: 900px) {
+    .pdf-modal {
+        width: 98vw;
+        max-width: 99vw;
+        height: 90vh;
+        min-height: 220px;
+        max-height: 98vh;
+        border-radius: 0.7rem;
+        padding: 0.2rem;
+    }
+    .pdf-modal-header {
+        padding: 0.7rem 0.7rem 0.3rem 0.7rem;
+        font-size: 1rem;
+    }
+    .pdf-modal-content {
+        padding: 0.5rem;
+    }
+    .pdf-modal-footer {
+        flex-direction: column;
+        gap: 0.7rem;
+        padding: 0.5rem 0.5rem;
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .pdf-modal {
+        width: 100vw;
+        max-width: 100vw;
+        height: 98vh;
+        min-height: 120px;
+        max-height: 99vh;
+        border-radius: 0.3rem;
+        padding: 0;
+    }
+    .pdf-modal-header {
+        padding: 0.4rem 0.4rem 0.2rem 0.4rem;
+        font-size: 0.95rem;
+    }
+    .pdf-modal-content {
+        padding: 0.2rem;
+    }
+    .pdf-modal-footer {
+        flex-direction: column;
+        gap: 0.4rem;
+        padding: 0.3rem 0.3rem;
+        font-size: 0.92rem;
+    }
+}
 .profile-menu-items {
     width: 10rem;
     display: flex;
@@ -21,7 +112,7 @@
 .profile-button {
     border: none;
     background: none;
-    color: #22678a;
+    color: #F2DA4C;
     cursor: pointer;
 }
 
@@ -57,15 +148,49 @@
     border: none;
     font-size: 1rem;
     transition: color 0.3s ease;
+    cursor: pointer;
 }
 
-.watermark-email {
-    position: fixed;
-    bottom: 4rem;
-    right: 15.5rem;
+.pdf-page-button:disabled,
+.pdf-page-button[disabled] {
+    cursor: not-allowed;
+}
+
+.pdf-modal-content {
+    position: relative;
+    overflow-x: auto;
+    overflow-y: auto;
+    background: #f3f4f6;
+    padding: 1rem;
+    min-height: 200px;
+    min-width: 200px;
+}
+
+.pdf-modal-content .watermark-email {
+    position: absolute;
+    bottom: 1.2rem;
+    right: 1.5rem;
     color: #9ca3af;
     font-size: 0.875rem;
     opacity: 0.4;
     font-style: italic;
     user-select: none;
+    z-index: 11;
+    pointer-events: none;
+}
+
+.pdf-modal-content .watermark-logo {
+    position: absolute;
+    top: 1.2rem;
+    left: 1.5rem;
+    color: #9ca3af;
+    font-size: 1.1rem;
+    opacity: 0.3;
+    font-weight: 600;
+    user-select: none;
+    z-index: 11;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    pointer-events: none;
 }

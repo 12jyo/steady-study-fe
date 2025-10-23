@@ -1,3 +1,158 @@
+/* Responsive table styles for mobile and tablets */
+@media (max-width: 900px) {
+    .admin-table,
+    .ag-theme-alpine.admin-table-wrapper {
+        font-size: 0.92rem;
+        border-radius: 0.7rem;
+        margin-top: 1rem;
+        box-shadow: 0 2px 8px #442D7722;
+        overflow-x: auto;
+        width: 100%;
+        min-width: 340px;
+    }
+    .admin-table th, .admin-table td {
+        padding: 0.7rem 0.7rem;
+        font-size: 0.92rem;
+        min-width: 90px;
+        word-break: break-word;
+    }
+    .admin-table th {
+        font-size: 1rem;
+    }
+    .admin-table td {
+        font-size: 0.92rem;
+    }
+    .ag-theme-alpine .ag-header-cell-label {
+        font-size: 0.95rem !important;
+        padding: 0.5rem 0.5rem !important;
+    }
+    .ag-theme-alpine .ag-cell {
+        font-size: 0.92rem !important;
+        padding: 0.5rem 0.5rem !important;
+        min-width: 90px;
+        word-break: break-word;
+    }
+    .ag-theme-alpine .ag-header {
+        font-size: 0.95rem !important;
+    }
+    .ag-theme-alpine .ag-row {
+        min-height: 36px !important;
+    }
+}
+
+@media (max-width: 600px) {
+    .admin-table,
+    .ag-theme-alpine.admin-table-wrapper {
+        font-size: 0.85rem;
+        border-radius: 0.5rem;
+        margin-top: 0.5rem;
+        box-shadow: 0 1px 4px #442D7711;
+        overflow-x: auto;
+        width: 100%;
+        min-width: 260px;
+    }
+    .admin-table th, .admin-table td {
+        padding: 0.5rem 0.3rem;
+        font-size: 0.85rem;
+        min-width: 70px;
+        word-break: break-word;
+    }
+    .admin-table th {
+        font-size: 0.92rem;
+    }
+    .admin-table td {
+        font-size: 0.85rem;
+    }
+    .ag-theme-alpine .ag-header-cell-label {
+        font-size: 0.85rem !important;
+        padding: 0.3rem 0.3rem !important;
+    }
+    .ag-theme-alpine .ag-cell {
+        font-size: 0.85rem !important;
+        padding: 0.3rem 0.3rem !important;
+        min-width: 70px;
+        word-break: break-word;
+    }
+    .ag-theme-alpine .ag-header {
+        font-size: 0.85rem !important;
+    }
+    .ag-theme-alpine .ag-row {
+        min-height: 28px !important;
+    }
+}
+/* Admin Table Styles - Consistent with Dashboard */
+.admin-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: linear-gradient(120deg, #FCF2A8 0%, #F2DA4C 80%, #E08F35 100%);
+    box-shadow: 0 4px 24px 0 #442D7722;
+    border-radius: 1.2rem;
+    overflow: hidden;
+    margin-top: 2rem;
+}
+
+.admin-table th, .admin-table td {
+    padding: 1.1rem 1.4rem;
+    text-align: left;
+}
+
+.admin-table th {
+    background: linear-gradient(90deg, #442D77 60%, #2D164D 100%);
+    color: #FCF2A8;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    border-bottom: 3px solid #E08F35;
+    font-size: 1.08rem;
+}
+
+.admin-table tr {
+    transition: background 0.2s;
+}
+
+.admin-table tbody tr {
+    background: rgba(252, 242, 168, 0.85);
+    border-bottom: 1.5px solid #F2DA4C;
+}
+
+.admin-table tbody tr:hover {
+    background: linear-gradient(90deg, #F2DA4C 60%, #FCF2A8 100%);
+    box-shadow: 0 2px 12px #E08F3533;
+}
+
+.admin-table td {
+    color: #2D164D;
+    font-size: 1.01rem;
+    vertical-align: middle;
+}
+
+.admin-table .action-btn {
+    background: linear-gradient(90deg, #442D77 60%, #2D164D 100%);
+    color: #F2DA4C;
+    border: none;
+    border-radius: 1.5rem;
+    padding: 0.5rem 1.5rem;
+    font-weight: 700;
+    font-size: 1.08rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.15s;
+    box-shadow: 0 2px 12px #442D7722;
+    text-shadow: 0 2px 8px #E08F3533;
+    outline: none;
+    border: 2px solid transparent;
+}
+.admin-table .action-btn:active {
+    transform: scale(0.97);
+}
+.admin-table .action-btn:hover, .admin-table .action-btn:focus {
+    background: linear-gradient(90deg, #E08F35 60%, #F2DA4C 100%);
+    color: #442D77;
+    box-shadow: 0 4px 20px #E08F3533;
+    border: 2px solid #E08F35;
+    text-shadow: 0 2px 12px #442D7744;
+}
 .reset-pwd-btn {
     border: none;
     background: none;
@@ -32,8 +187,8 @@
     font-size: 0.875rem;
     line-height: 1.25rem;
     font-weight: 700;
-    color: #ffffff;
-    background-color: #3091c2;
+    color: #FCF2A8;
+    background-color: #442D77;
     border-radius: 0.5rem;
     transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
     transition-duration: 150ms;
@@ -43,14 +198,14 @@
 
 
 .add-student-btn:hover {
-    background-color: #22678a;
+    background-color: #2D164D;
+    color: #F2DA4C;
     cursor: pointer;
 }
 
-.ag-theme-alpine .ag-header-cell-label,
-.ag-theme-alpine .ag-cell {
-  justify-content: flex-start !important;
-  text-align: left !important;
+.ag-theme-alpine .ag-header-cell-label {
+    justify-content: center !important;
+    text-align: center !important;
 }
 
 .ag-paging-panel {

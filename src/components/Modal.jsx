@@ -16,10 +16,11 @@ export default function Modal({
   onCancel,
   saveText = "Save",
   cancelText = "Cancel",
+  className,
 }) {
   return (
-    <Dialog open={open} onClose={onCancel} maxWidth="xs" fullWidth>
-      <DialogTitle className="">{title}</DialogTitle>
+    <Dialog open={open} onClose={onCancel} maxWidth="xs" fullWidth className={className}>
+      {title && <DialogTitle className="modal-header">{title}</DialogTitle>}
       <DialogContent dividers>{content}</DialogContent>
       <DialogActions>
         <Button className="cancel-button" onClick={onCancel} color="inherit" variant="outlined">

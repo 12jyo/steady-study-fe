@@ -9,6 +9,7 @@ import { SiStudyverse } from "react-icons/si";
 import API from "../api/api";
 import { toast } from "react-toastify";
 import { getDeviceId } from "../utils/device";
+import HamburgerMenu from "./HamburgerMenu";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -39,13 +40,15 @@ export default function Navbar() {
 
   return (
     <>
+
       <nav className="flex justify-between items-center navbar">
         <div className="logo">
           <SiStudyverse />
           Steady-Study-8
         </div>
 
-        <div className="flex items-center gap-[3rem] text-[1.2rem]">
+        {/* Desktop menu */}
+        <div className="nav-items desktop-menu">
           <NavLink
             to="/dashboard"
             className={({ isActive }) =>
@@ -70,6 +73,39 @@ export default function Navbar() {
           >
             Batches
           </NavLink>
+        </div>
+
+        {/* Hamburger for mobile */}
+        <div className="mobile-menu">
+          <HamburgerMenu>
+            <NavLink
+              to="/dashboard"
+              className={({ isActive }) =>
+                isActive ? "nav-item active-nav-item" : "nav-item"
+              }
+              onClick={() => window.innerWidth < 900 && document.activeElement.blur()}
+            >
+              Dashboard
+            </NavLink>
+            <NavLink
+              to="/students"
+              className={({ isActive }) =>
+                isActive ? "nav-item active-nav-item" : "nav-item"
+              }
+              onClick={() => window.innerWidth < 900 && document.activeElement.blur()}
+            >
+              Students
+            </NavLink>
+            <NavLink
+              to="/batches"
+              className={({ isActive }) =>
+                isActive ? "nav-item active-nav-item" : "nav-item"
+              }
+              onClick={() => window.innerWidth < 900 && document.activeElement.blur()}
+            >
+              Batches
+            </NavLink>
+          </HamburgerMenu>
         </div>
 
         <Tooltip title="Logout" arrow>
