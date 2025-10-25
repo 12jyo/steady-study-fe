@@ -21,7 +21,7 @@ export default function Home() {
     return (
         <div className="min-h-screen flex flex-col bg-gray-50">
             <div className="flex flex-col items-center mt-[3rem]">
-                <div className="logo flex items-center text-2xl font-bold gap-2">
+                <div className="logo flex items-center text-2xl font-bold gap-2" style={{ color: "#2D164D" }}>
                     <SiStudyverse size={32} />
                     Steady-Study-8
                 </div>

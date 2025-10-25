@@ -95,7 +95,7 @@ export default function AdminLogin() {
 
       {/* Logo Section */}
       <div className="flex flex-col items-center absolute top-[3rem]">
-        <div className="logo flex items-center text-2xl font-bold gap-2">
+        <div className="logo flex items-center text-2xl font-bold gap-2" style={{ color: "#2D164D" }}>
           <SiStudyverse size={32} />
           Steady-Study-8
         </div>
@@ -105,33 +105,33 @@ export default function AdminLogin() {
       <form onSubmit={handleLogin} className="login">
         <h2 className="text-xl font-semibold mb-4 text-center">Admin Login</h2>
 
-        <div className="flex flex-col gap-[1.5rem] mt-[3.5rem]">
+        <div className="flex flex-col gap-[1.5rem] mt-[2.5rem]">
           {/* Email Input */}
-          <input
-            type="email"
-            placeholder="Email"
-            className={`border p-2 w-full mb-3 modal-input ${
-              email && !validateEmail(email) ? "border-red-500" : ""
-            }`}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            list="recent-admin-emails"
-            autoComplete="off"
-          />
-          <datalist id="recent-admin-emails">
-            {recentEmails.map((em) => (
-              <option value={em} key={em} />
-            ))}
-          </datalist>
+          <div>
+            <input
+              type="email"
+              placeholder="Email"
+              className={`border p-2 mb-1 !w-[21rem] modal-input ${email && !validateEmail(email) ? "border-red-500" : ""
+                }`}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              list="recent-admin-emails"
+              autoComplete="off"
+            />
+            <datalist id="recent-admin-emails">
+              {recentEmails.map((em) => (
+                <option value={em} key={em} />
+              ))}
+            </datalist>
+          </div>
 
           {/* Password Input */}
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
-              className={`border p-2 w-full mb-3 modal-input pr-10 ${
-                password && password.length < 6 ? "border-red-500" : ""
-              }`}
+              className={`border p-2 !w-[21rem] modal-input pr-10 ${password && password.length < 6 ? "border-red-500" : ""
+                }`}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -154,9 +154,8 @@ export default function AdminLogin() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`w-full login-btn ${
-              isSubmitting ? "opacity-60 cursor-not-allowed" : ""
-            }`}
+            className={`w-full login-btn ${isSubmitting ? "opacity-60 cursor-not-allowed" : ""
+              }`}
           >
             {isSubmitting ? "Logging in..." : "Login"}
           </button>

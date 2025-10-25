@@ -106,12 +106,12 @@ export default function StudentLogin() {
       <form onSubmit={login} className="login">
         <h2 className="text-xl font-semibold mb-4 text-center">Student Login</h2>
 
-        <div className="flex flex-col gap-[1.5rem] mt-[3.5rem]">
+        <div className="flex flex-col gap-[1.5rem] mt-[2.5rem]">
           <div>
             <input
               type="email"
               placeholder="Email"
-              className={`border p-2 w-full mb-1 !w-[21rem] modal-input ${emailError ? "border-red-500" : ""}`}
+              className={`border p-2 mb-1 !w-[21rem] modal-input ${emailError ? "border-red-500" : ""}`}
               value={email}
               onChange={handleEmailChange}
               list="recent-student-emails"
@@ -134,7 +134,7 @@ export default function StudentLogin() {
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
-              className={`border p-2 w-full !w-[21rem] modal-input pr-10 ${password && password.length < 6 ? "border-red-500" : ""
+              className={`border p-2 !w-[21rem] modal-input pr-10 ${password && password.length < 6 ? "border-red-500" : ""
                 }`}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
