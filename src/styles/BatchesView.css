@@ -201,7 +201,7 @@
     line-height: 1.25rem;
     font-weight: 700;
     color: #FCF2A8;
-    background-color: #442D77;
+    background-color: #765cb0;;
     border-radius: 0.5rem;
     transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
     transition-duration: 150ms;
@@ -211,7 +211,7 @@
 
 
 .add-batch-btn:hover {
-    background-color: #2D164D;
+    background-color: #603d90;
     color: #F2DA4C;
     cursor: pointer;
 }

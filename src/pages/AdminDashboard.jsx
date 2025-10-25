@@ -63,9 +63,9 @@ export default function AdminDashboard() {
                         element={<DashboardView students={students} batches={batches} />}
                     />
 
-                    <Route path="/students" element={<StudentsView />} />
+                    {/* <Route path="/students" element={<StudentsView />} />
 
-                    <Route path="/batches" element={<BatchesView />} />
+                    <Route path="/batches" element={<BatchesView />} /> */}
 
                     <Route
                         path="/"

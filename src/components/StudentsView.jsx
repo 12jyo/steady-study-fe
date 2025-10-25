@@ -272,9 +272,7 @@ export default function StudentsView() {
                 headerClass: "admin-table-header"
             },
             {
-                headerName:
-
-                    "No. of Device Access",
+                headerName: "No. of Device Access",
                 field: "deviceLimit",
                 flex: 1,
                 filter: "agNumberColumnFilter",
@@ -429,7 +427,7 @@ export default function StudentsView() {
                             document.getElementById("add-student-form").requestSubmit()
                         }
                         onCancel={() => setShowAddModal(false)}
-                        saveText="Generate CSV"
+                        saveText="Download Password"
                         cancelText="Cancel"
                     />
                 )}

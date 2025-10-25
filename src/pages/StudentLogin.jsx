@@ -30,7 +30,7 @@ export default function StudentLogin() {
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
-  const validateEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  // const validateEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
   const handleEmailChange = (e) => {
     const value = e.target.value;
@@ -59,6 +59,9 @@ export default function StudentLogin() {
       const res = await API.post("/student/login", { email, password, deviceId });
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("studentEmail", email);
+      if (res.data.name) {
+        localStorage.setItem("studentName", res.data.name);
+      }
       // Store recent email
       let emails = JSON.parse(localStorage.getItem("recentStudentEmails") || "[]");
       emails = emails.filter(e => e !== email); // Remove duplicate

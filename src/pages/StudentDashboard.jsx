@@ -27,7 +27,6 @@ export default function StudentDashboard() {
     const [scale, setScale] = useState(1);
     const [rotation, setRotation] = useState(0);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
-    const [showResetModal, setShowResetModal] = useState(false);
     const [showMenu, setShowMenu] = useState(false);
     const navigate = useNavigate();
 
@@ -103,10 +102,33 @@ export default function StudentDashboard() {
         navigate("/");
     };
 
-    // Reset password handler
-    const handleResetPassword = () => {
-        setShowResetModal(true);
+    // Reset password handler: directly call API and download CSV
+    const handleResetPassword = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            const email = localStorage.getItem("studentEmail");
+            const res = await API.put(
+                "/student/reset-password",
+                { email },
+                {
+                    headers: { Authorization: `Bearer ${token}` },
+                    responseType: "blob",
+                }
+            );
+            // Download CSV
+            const url = window.URL.createObjectURL(new Blob([res.data], { type: "text/csv" }));
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", "new-password.csv");
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode.removeChild(link);
+            toast.success("Password generated and CSV downloaded.");
+        } catch (err) {
+            toast.error("Failed to generate password.", err);
+        }
     };
+
 
     // PDF controls
     const handleDocumentLoad = ({ numPages }) => {
@@ -160,6 +182,7 @@ export default function StudentDashboard() {
     }, [selectedPdf]);
 
     return (
+        <>
         <div className="min-h-screen bg-gray-50 select-none">
             {/* Header */}
             <nav className="flex justify-between items-center navbar">
@@ -181,6 +204,12 @@ export default function StudentDashboard() {
 
                     {showMenu && (
                         <div className="absolute right-[0] mt-2 w-44 bg-white shadow-md z-50 overflow-hidden profile-menu-items">
+                            {/* Student Name Display */}
+                            <div className="border-b border-[#e1d8d8] relative pl-[0.8rem] pr-[0.8rem] pt-[0.3rem] pb-[0.3rem]">
+                            <div className="">
+                                {localStorage.getItem("studentName") || ""}
+                            </div>
+                            </div>
                             <button
                                 onClick={() => {
                                     setShowMenu(false);
@@ -273,26 +302,18 @@ export default function StudentDashboard() {
                                     ×
                                 </button>
                             </div>
-
                             {/* PDF Container */}
-                            <div
-                                className="pdf-modal-content"
-                                onContextMenu={(e) => e.preventDefault()}
-                            >
-                                {/* 🔹 Watermark Overlay */}
+                            <div className="pdf-modal-content" onContextMenu={(e) => e.preventDefault()}>
+                                {/* Watermark Overlay */}
                                 <div className="pointer-events-none z-10">
-                                    {/* Top-left logo watermark */}
                                     <div className="watermark-logo">
                                         <SiStudyverse className="text-2xl text-[#3091c2]" />
                                         <span>Steady-Study-8</span>
                                     </div>
-                                    {/* Bottom-right student email watermark */}
                                     <div className="watermark-email">
                                         {localStorage.getItem("studentEmail") || ""}
                                     </div>
                                 </div>
-
-                                {/* PDF Document */}
                                 <div className="flex justify-center">
                                     <Document
                                         file={memoizedFile}
@@ -313,10 +334,8 @@ export default function StudentDashboard() {
                                     </Document>
                                 </div>
                             </div>
-
                             {/* Footer Controls */}
                             <div className="pdf-modal-footer">
-                                {/* Navigation */}
                                 <div className="flex items-center gap-[1rem]">
                                     <button
                                         onClick={handlePrev}
@@ -336,8 +355,6 @@ export default function StudentDashboard() {
                                         <FcNext />
                                     </button>
                                 </div>
-
-                                {/* Zoom & Rotate */}
                                 <div className="flex items-center gap-[1rem]">
                                     <Tooltip title="Zoom In" arrow>
                                         <button
@@ -347,7 +364,6 @@ export default function StudentDashboard() {
                                             <FaSearchPlus size={20} />
                                         </button>
                                     </Tooltip>
-
                                     <Tooltip title="Zoom Out" arrow>
                                         <button
                                             onClick={handleZoomOut}
@@ -356,7 +372,6 @@ export default function StudentDashboard() {
                                             <FaSearchMinus size={20} />
                                         </button>
                                     </Tooltip>
-
                                     <Tooltip title="Rotate" arrow>
                                         <button
                                             onClick={handleRotate}
@@ -385,37 +400,8 @@ export default function StudentDashboard() {
                 />
             )}
 
-            {/* Reset Password Modal */}
-            {showResetModal && (
-                <Modal
-                    open={showResetModal}
-                    title="Reset Password"
-                    content={
-                        <form
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                toast.success("Password reset link sent to your email.");
-                                setShowResetModal(false);
-                            }}
-                            className="flex flex-col gap-3"
-                        >
-                            <input
-                                type="email"
-                                placeholder="Enter your registered email"
-                                required
-                                className="border p-2 rounded"
-                            />
-                        </form>
-                    }
-                    onSave={() => {
-                        toast.success("Password reset link sent.");
-                        setShowResetModal(false);
-                    }}
-                    onCancel={() => setShowResetModal(false)}
-                    saveText="Send Link"
-                    cancelText="Cancel"
-                />
-            )}
+            {/* Reset Password Modal removed as per requirements */}
         </div>
+        </>
     );
 }

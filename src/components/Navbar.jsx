@@ -76,6 +76,7 @@ export default function Navbar() {
         </div>
 
         {/* Hamburger for mobile */}
+
         <div className="mobile-menu">
           <HamburgerMenu>
             <NavLink
