@@ -64,7 +64,6 @@ export default function StudentDashboard() {
         return () => document.removeEventListener("contextmenu", disableContext);
     }, []);
 
-    // Fetch resources
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -83,7 +82,6 @@ export default function StudentDashboard() {
             });
     }, [navigate]);
 
-    // Logout handlers
     const handleLogout = () => setShowLogoutModal(true);
     const confirmLogout = async () => {
         const token = localStorage.getItem("token");
@@ -102,7 +100,6 @@ export default function StudentDashboard() {
         navigate("/");
     };
 
-    // Reset password handler: directly call API and download CSV
     const handleResetPassword = async () => {
         try {
             const token = localStorage.getItem("token");
@@ -115,7 +112,6 @@ export default function StudentDashboard() {
                     responseType: "blob",
                 }
             );
-            // Download CSV
             const url = window.URL.createObjectURL(new Blob([res.data], { type: "text/csv" }));
             const link = document.createElement("a");
             link.href = url;
@@ -124,6 +120,21 @@ export default function StudentDashboard() {
             link.click();
             link.parentNode.removeChild(link);
             toast.success("Password generated and CSV downloaded.");
+
+            toast.info("Please login again with your new password.");
+
+            const deviceId = getDeviceId();
+            try {
+                await API.post(
+                    "/student/logout",
+                    { deviceId },
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+            } catch (err) {
+                toast.error(err.response?.data?.message || "Logout failed");
+            }
+            localStorage.clear();
+            navigate("/");
         } catch (err) {
             toast.error("Failed to generate password.", err);
         }
