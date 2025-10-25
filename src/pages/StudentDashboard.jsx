@@ -97,7 +97,7 @@ export default function StudentDashboard() {
         } catch (err) {
             toast.error(err.response?.data?.message || "Logout failed");
         }
-        localStorage.removeItem("token");
+        localStorage.clear();
         setShowLogoutModal(false);
         navigate("/");
     };
