@@ -23,17 +23,21 @@
   transform: translateY(-2px) scale(1.01);
 }
 .view-resource-title {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  font-size: 1.08rem;
-  font-weight: 500;
-  color: #22678a;
+    display: grid;
+    align-items: center;
+    gap: 0.7rem;
+    font-size: 1.08rem;
+    font-weight: 500;
+    color: #22678a;
+    overflow-wrap: break-word;
+    white-space: normal;
+    word-break: break-all;
 }
 /* Button group for alignment */
 .view-resource-actions {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.7rem;
   margin-left: 1rem;
 }

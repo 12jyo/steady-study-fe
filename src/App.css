@@ -541,3 +541,11 @@
 .ag-header-icon {
   margin-right: 1rem;
 }
+
+.cancel-button-hidden .cancel-button{
+  display: none;
+}
+
+.MuiDialog-paper {
+  max-width: fit-content !important;
+}

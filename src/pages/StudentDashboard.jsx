@@ -140,6 +140,25 @@ export default function StudentDashboard() {
         }
     };
 
+    const getWatermarkText = () => {
+        const email = localStorage.getItem("studentEmail") || "";
+        const now = new Date();
+
+        const datePart = now.toLocaleDateString('en-IN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
+
+        const timePart = now.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        });
+        const sessionInfo = localStorage.getItem("studentId") || "";
+        return `${email} - ${datePart} ${timePart} - ${sessionInfo}`;
+    };
 
     // PDF controls
     const handleDocumentLoad = ({ numPages }) => {
@@ -316,16 +335,16 @@ export default function StudentDashboard() {
                                 {/* PDF Container */}
                                 <div className="pdf-modal-content" onContextMenu={(e) => e.preventDefault()}>
                                     {/* Watermark Overlay */}
-                                    <div className="pointer-events-none z-10">
-                                        <div className="watermark-logo">
-                                            <SiStudyverse className="text-2xl text-[#3091c2]" />
-                                            <span>Steady-Study-8</span>
-                                        </div>
-                                        <div className="watermark-email">
-                                            {localStorage.getItem("studentEmail") || ""}
+                                    <div className="watermark-overlay">
+                                        <div className="watermark-grid">
+                                            {Array.from({ length: 16 }).map((_, index) => (
+                                                <div key={index} className="watermark-item">
+                                                    {getWatermarkText()}
+                                                </div>
+                                            ))}
                                         </div>
                                     </div>
-                                    <div className="flex justify-center">
+                                    <div className="pdf-scroll-wrapper flex justify-center">
                                         <Document
                                             file={memoizedFile}
                                             onLoadSuccess={handleDocumentLoad}

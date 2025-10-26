@@ -62,9 +62,12 @@ export default function StudentLogin() {
       if (res.data.name) {
         localStorage.setItem("studentName", res.data.name);
       }
+      if (res.data.studentId) {
+        localStorage.setItem("studentId", res.data.studentId);
+      }
       // Store recent email
       let emails = JSON.parse(localStorage.getItem("recentStudentEmails") || "[]");
-      emails = emails.filter(e => e !== email); // Remove duplicate
+      emails = emails.filter(e => e !== email);
       emails.unshift(email);
       if (emails.length > 5) emails = emails.slice(0, 5);
       localStorage.setItem("recentStudentEmails", JSON.stringify(emails));
