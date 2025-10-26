@@ -12,6 +12,7 @@ export default function DashboardView({ students, batches }) {
   const [openModal, setOpenModal] = useState(false);
   const [modalStudents, setModalStudents] = useState([]);
   const [modalBatch, setModalBatch] = useState(null);
+  const [search, setSearch] = useState("");
 
   const handleViewBatch = (batch) => {
     setModalBatch(batch);
@@ -19,6 +20,7 @@ export default function DashboardView({ students, batches }) {
       Array.isArray(stu.batchIds) && stu.batchIds.some((b) => b._id === batch._id)
     );
     setModalStudents(batchStudents);
+    setSearch("");
     setOpenModal(true);
   };
 
@@ -113,21 +115,32 @@ export default function DashboardView({ students, batches }) {
             <div className="view-students-title">
               {modalBatch ? `Students in ${modalBatch.title}` : "Students"}
             </div>
+            <input
+              type="text"
+              placeholder="Search students..."
+              className="view-students-search"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              style={{ marginBottom: 16, width: '100%', padding: 8, borderRadius: 6, border: '1px solid #ccc' }}
+            />
             {modalStudents.length === 0 ? (
               <div className="view-students-empty">No students in this batch.</div>
             ) : (
               <ul className="view-students-list">
-                {modalStudents.map((stu) => (
-                  <li key={stu._id} className="view-student-item">
-                    <div className="view-student-avatar">
-                      {stu.name?.[0]?.toUpperCase() || stu.email?.[0]?.toUpperCase() || "S"}
-                    </div>
-                    <div>
-                      <div>{stu.name}</div>
-                      <div className="view-student-email">{stu.email}</div>
-                    </div>
-                  </li>
-                ))}
+                {modalStudents
+                  .filter(stu =>
+                    !search ||
+                    (stu.name && stu.name.toLowerCase().includes(search.toLowerCase())) ||
+                    (stu.email && stu.email.toLowerCase().includes(search.toLowerCase()))
+                  )
+                  .map((stu) => (
+                    <li key={stu._id} className="view-student-item">
+                      <div>
+                        <div>{stu.name}</div>
+                        <div className="view-student-email">{stu.email}</div>
+                      </div>
+                    </li>
+                  ))}
               </ul>
             )}
           </div>

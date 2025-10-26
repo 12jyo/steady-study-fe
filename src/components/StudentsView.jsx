@@ -147,7 +147,25 @@ export default function StudentsView() {
             await fetchStudentsAndBatches();
         } catch (err) {
             console.error(err);
-            toast.error(err.response?.data?.message || err.message);
+            if (err.response?.status === 409) {
+                const data = err.response.data;
+                if (data instanceof Blob) {
+                    data.text().then(text => {
+                        try {
+                            const json = JSON.parse(text);
+                            toast.error(json.message || "");
+                        } catch {
+                            toast.error("");
+                        }
+                    });
+                } else if (data?.message) {
+                    toast.error(data.message);
+                } else {
+                    toast.error("");
+                }
+            } else {
+                toast.error(err.response?.data?.message || err.message || `Error: ${err.response?.status}`);
+            }
         }
     };
 

@@ -1,3 +1,22 @@
+/* Search input for students modal */
+.view-students-search {
+    width: 100%;
+    padding: 0.7rem 1.1rem;
+    margin-bottom: 1.2rem;
+    border-radius: 0.8rem;
+    border: 1.5px solid #e0c96b;
+    font-size: 1.08rem;
+    background: #fffbe6;
+    color: #442D77;
+    outline: none;
+    box-shadow: 0 2px 8px #E08F3533;
+    transition: border 0.2s, box-shadow 0.2s;
+}
+.view-students-search:focus {
+    border: 1.5px solid #F2DA4C;
+    box-shadow: 0 4px 16px #E08F3533;
+    background: #fff9d1;
+}
 .view-students-modal-content {
     background: linear-gradient(120deg, #faf3be 0%, #edde83 80%, #ebc79e 100%);
     border-radius: 1.5rem;
