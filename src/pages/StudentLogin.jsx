@@ -10,15 +10,16 @@ import { getDeviceId } from "../utils/device";
 export default function StudentLogin() {
   const [email, setEmail] = useState("");
   const [recentEmails, setRecentEmails] = useState([]);
-  // Load recent emails from localStorage
   useEffect(() => {
     const emails = JSON.parse(localStorage.getItem("recentStudentEmails") || "[]");
     setRecentEmails(emails);
   }, []);
   const [password, setPassword] = useState("");
-  const [deviceId] = useState(getDeviceId());
+  useEffect(() => {
+    getDeviceId();
+  }, []);
   const [error, setError] = useState("");
-  const [emailError, setEmailError] = useState("");
+  const [emailError, ] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
@@ -56,6 +57,7 @@ export default function StudentLogin() {
 
     try {
       setIsSubmitting(true);
+      const deviceId = localStorage.getItem("deviceId");
       const res = await API.post("/student/login", { email, password, deviceId });
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("studentEmail", email);

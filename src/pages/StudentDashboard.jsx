@@ -85,7 +85,7 @@ export default function StudentDashboard() {
     const handleLogout = () => setShowLogoutModal(true);
     const confirmLogout = async () => {
         const token = localStorage.getItem("token");
-        const deviceId = getDeviceId();
+        const deviceId = localStorage.getItem("deviceId");
         try {
             await API.post(
                 "/student/logout",
@@ -297,7 +297,6 @@ export default function StudentDashboard() {
                                                             setScale(1);
                                                             setRotation(0);
                                                             setSelectedPdf(url);
-
                                                         } catch (err) {
                                                             toast.error("Failed to load PDF preview.", err);
                                                         }
