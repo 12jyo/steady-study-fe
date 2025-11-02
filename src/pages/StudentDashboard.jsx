@@ -29,7 +29,18 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
+/*
+ * ⬇️ Add these styles to your StudentDashboard.css (or a global CSS file)
+ * --------------------------------------------------------------
+ * .protected-content { transition: filter 200ms ease; position: relative; overflow: hidden; }
+ * .protected-content.blurred { filter: blur(12px); }
+ * .watermark-fixed { position: fixed; inset: 0; pointer-events: none; opacity: 0.15; font-size: 24px; color: #000; display: flex; justify-content: center; align-items: center; transform: rotate(-25deg); z-index: 9998; white-space: pre-wrap; text-align: center; padding: 24px; }
+ * .deterrent-overlay { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); background: rgba(0,0,0,0.65); z-index: 999999; color: #fff; font-size: 22px; font-weight: bold; text-align: center; user-select: none; padding: 24px; }
+ * .deterrent-overlay.show { display: flex; }
+ */
+
 export default function StudentDashboard() {
+    // --- App state ---
     const [resources, setResources] = useState([]);
     const [selectedPdf, setSelectedPdf] = useState(null);
     const [numPages, setNumPages] = useState(null);
@@ -42,6 +53,15 @@ export default function StudentDashboard() {
 
     const navigate = useNavigate();
 
+    // --- Device limit modal state ---
+    const [showDeviceLimitModal, setShowDeviceLimitModal] = useState(false);
+    const handleDeviceLimitOK = () => {
+        try { localStorage.clear(); } catch (err) { console.error(err); }
+        setShowDeviceLimitModal(false);
+        navigate("/student-login");
+    };
+
+    // --- Protected Viewer config/state (applies only while PDF preview is open) ---
     const COOLDOWN_MS = 800;
     const contentRef = useRef(null);
     const lastTriggerTsRef = useRef(0);
@@ -82,11 +102,12 @@ export default function StudentDashboard() {
             if (navigator?.clipboard?.writeText) {
                 await navigator.clipboard.writeText("");
             }
-        } catch (error) {
-            console.error("Clipboard clear failed:", error);
+        } catch (err) {
+            console.error(err);
         }
     };
 
+    // --- Auth: redirect to home if not logged in ---
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -94,6 +115,7 @@ export default function StudentDashboard() {
         }
     }, [navigate]);
 
+    // --- Disable back navigation ---
     useEffect(() => {
         window.history.pushState(null, "", window.location.href);
         const handlePopState = () => window.history.pushState(null, "", window.location.href);
@@ -101,13 +123,29 @@ export default function StudentDashboard() {
         return () => window.removeEventListener("popstate", handlePopState);
     }, []);
 
+    // --- Intercept ANY 403 for student-side APIs and show device-limit modal ---
+    useEffect(() => {
+        const respInterceptorId = API.interceptors.response.use(
+            (response) => response,
+            (error) => {
+                const status = error?.response?.status;
+                if (status === 403) {
+                    setShowDeviceLimitModal(true);
+                }
+                return Promise.reject(error);
+            }
+        );
+        return () => API.interceptors.response.eject(respInterceptorId);
+    }, []);
+
+    // --- Unified deterrent listeners (ONLY when PDF preview is open) ---
     useEffect(() => {
         if (!selectedPdf) return; // attach only while viewer is open
 
         const onKeyDown = (e) => {
             const reason = isSuspiciousKey(e);
             if (!reason) return;
-            try { e.preventDefault(); } catch (error) { console.error("PreventDefault failed:", error); }
+            try { e.preventDefault(); } catch (err) { console.error(err); }
             triggerOverlay(reason);
 
             // Try to clear clipboard for likely screenshot combos on macOS
@@ -124,7 +162,7 @@ export default function StudentDashboard() {
         // Some environments dispatch PrintScreen on keyup only — catch both
         const onKeyUp = (e) => {
             if (e.key === "PrintScreen" || e.key === "Print" || e.key === "Snap") {
-                try { e.preventDefault(); } catch (error) { console.error("PreventDefault failed:", error); }
+                try { e.preventDefault(); } catch (err) { console.error(err); }
                 triggerOverlay("printscreen");
                 setTimeout(() => { attemptClearClipboard(); }, 0);
             }
@@ -164,6 +202,7 @@ export default function StudentDashboard() {
         };
     }, [selectedPdf, triggerOverlay, clearOverlay, overlayVisible]);
 
+    // --- Data Fetching ---
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -173,7 +212,11 @@ export default function StudentDashboard() {
 
         API.get("/student/resources", { headers: { Authorization: `Bearer ${token}` } })
             .then((res) => setResources(res.data))
-            .catch(() => {
+            .catch((err) => {
+                if (err?.response?.status === 403) {
+                    // Interceptor already opened the device-limit modal
+                    return;
+                }
                 toast.error("Session expired. Please login again.");
                 localStorage.removeItem("token");
                 navigate("/student-login");
@@ -191,7 +234,10 @@ export default function StudentDashboard() {
                 { headers: { Authorization: `Bearer ${token}` } }
             );
         } catch (err) {
-            toast.error(err.response?.data?.message || "Logout failed");
+            if (err?.response?.status !== 403) {
+                toast.error(err.response?.data?.message || "Logout failed");
+            }
+            // if 403, interceptor shows the modal
         }
         localStorage.clear();
         setShowLogoutModal(false);
@@ -229,12 +275,17 @@ export default function StudentDashboard() {
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
             } catch (err) {
-                toast.error(err.response?.data?.message || "Logout failed");
+                if (err?.response?.status !== 403) {
+                    toast.error(err.response?.data?.message || "Logout failed");
+                }
             }
             localStorage.clear();
             navigate("/");
         } catch (err) {
-            toast.error("Failed to generate password.", err);
+            if (err?.response?.status !== 403) {
+                toast.error("Failed to generate password.", err);
+            }
+            // if 403, interceptor shows device-limit modal
         }
     };
 
@@ -269,10 +320,15 @@ export default function StudentDashboard() {
             setSelectedPdf(url);
             setIsDrawerOpen(false);
         } catch (err) {
+            if (err?.response?.status === 403) {
+                // Interceptor already opened the device-limit modal
+                return;
+            }
             toast.error("Failed to load PDF preview.", err);
         }
     };
 
+    // PDF controls
     const handleDocumentLoad = ({ numPages }) => { setNumPages(numPages); setPageNumber(1); };
     const handlePrev = () => setPageNumber((p) => Math.max(p - 1, 1));
     const handleNext = () => setPageNumber((p) => Math.min(p + 1, numPages || 1));
@@ -295,21 +351,25 @@ export default function StudentDashboard() {
         setIsDrawerOpen(open);
     };
 
+    // Close dropdown if clicked outside
     useEffect(() => {
         const handleClickOutside = (e) => { if (!(e.target).closest(".profile-menu")) setShowMenu(false); };
         document.addEventListener("click", handleClickOutside);
         return () => document.removeEventListener("click", handleClickOutside);
     }, []);
 
+    // Memoize file object (if needed for auth headers; here we load from blob URL)
     const memoizedFile = useMemo(() => {
         if (!selectedPdf) return null;
         return { url: selectedPdf, httpHeaders: { Authorization: `Bearer ${localStorage.getItem("token")}` }, withCredentials: true };
     }, [selectedPdf]);
 
+    // Cleanup blob URLs
     useEffect(() => {
         return () => { if (selectedPdf && selectedPdf.startsWith("blob:")) window.URL.revokeObjectURL(selectedPdf); };
     }, [selectedPdf]);
 
+    // Drawer Content
     const ResourceDrawerContent = (
         <Box sx={{ width: 350 }} role="presentation">
             <div className="p-4">
@@ -336,14 +396,17 @@ export default function StudentDashboard() {
 
     return (
         <>
+            {/* Content that gets blurred when overlay is shown (only relevant during PDF view) */}
             <div ref={contentRef} id="content" className="protected-content">
                 <div className="min-h-screen bg-gray-50 select-none">
+                    {/* Header */}
                     <nav className="flex justify-between items-center navbar">
                         <div className="logo">
                             <SiStudyverse />
                             Steady-Study-8
                         </div>
 
+                        {/* Profile Menu */}
                         <div className="relative profile-menu">
                             <Tooltip title="Profile" arrow>
                                 <button
@@ -356,6 +419,7 @@ export default function StudentDashboard() {
 
                             {showMenu && (
                                 <div className="absolute right-[0] mt-2 w-44 bg-white shadow-md z-50 overflow-hidden profile-menu-items">
+                                    {/* Student Name Display */}
                                     <div className="border-b border-[#e1d8d8] relative pl-[0.8rem] pr-[0.8rem] pt-[0.3rem] pb-[0.3rem]">
                                         <div>{localStorage.getItem("studentName") || ""}</div>
                                     </div>
@@ -376,7 +440,9 @@ export default function StudentDashboard() {
                         </div>
                     </nav>
 
+                    {/* Main Content Area: Conditional Rendering */}
                     {!selectedPdf ? (
+                        // --- Initial View: Full Resource List ---
                         <div className="w-[80%] mx-auto p-8">
                             <div className="flex justify-between items-center mb-[1.5rem]">
                                 <h2 className="text-2xl font-bold">My Resources</h2>
@@ -413,23 +479,28 @@ export default function StudentDashboard() {
                             )}
                         </div>
                     ) : (
+                        // --- PDF Viewer Active View ---
                         <div className="flex relative h-[calc(100vh-64px)]">
-
+                            {/* Full-screen deterrent overlay (only while PDF open) */}
                             <div className={`deterrent-overlay ${overlayVisible ? "show" : ""}`} id="screenshot-overlay">
                                 {overlayMsg.split("\n").map((line, idx) => (
                                     <div key={idx}>{line}</div>
                                 ))}
                             </div>
 
+                            {/* App-wide big rotated watermark (only while PDF open) */}
                             <div className="watermark-fixed" aria-hidden>
                                 {getWatermarkText()}
                             </div>
 
+                            {/* Drawer for Collapsed Resource List */}
                             <Drawer anchor="left" open={isDrawerOpen} onClose={toggleDrawer(false)}>
                                 {ResourceDrawerContent}
                             </Drawer>
 
+                            {/* PDF Viewer Content (main area) */}
                             <div className="flex-1 flex flex-col items-center justify-center p-4">
+                                {/* Drawer Toggle Button */}
                                 <div className="w-[90%] flex justify-start mb-4 max-w-[1200px]">
                                     <Tooltip title="Toggle Resources" arrow>
                                         <Button onClick={toggleDrawer(true)} variant="contained" startIcon={<SiStudyverse />} className="bg-blue-600 hover:bg-blue-700 text-white">
@@ -438,13 +509,17 @@ export default function StudentDashboard() {
                                     </Tooltip>
                                 </div>
 
+                                {/* PDF Viewer Container */}
                                 <div className="pdf-modal-fullscreen w-[90%] h-[90%] max-w-[1200px] max-h-[calc(100vh-160px)] shadow-2xl rounded-lg bg-white flex flex-col">
+                                    {/* Header (with Close button) */}
                                     <div className="pdf-modal-header p-4 flex justify-between items-center border-b">
                                         <h3 className="font-semibold text-lg">PDF Preview</h3>
                                         <button onClick={handleClose} className="bg-transparent border-none text-[2.5rem] cursor-pointer text-gray-500 hover:text-gray-800 transition leading-none">×</button>
                                     </div>
 
+                                    {/* PDF Content Area */}
                                     <div className="pdf-modal-content flex-1 overflow-auto relative" onContextMenu={(e) => e.preventDefault()}>
+                                        {/* Existing watermark grid over the PDF area */}
                                         <div className="watermark-overlay">
                                             <div className="watermark-grid">
                                                 {Array.from({ length: 16 }).map((_, index) => (
@@ -473,6 +548,7 @@ export default function StudentDashboard() {
                                         </div>
                                     </div>
 
+                                    {/* Footer Controls */}
                                     <div className="pdf-modal-footer">
                                         <div className="flex items-center gap-[1rem]">
                                             <button onClick={handlePrev} disabled={pageNumber <= 1} className={`text-gray-600 hover:text-blue-600 disabled:text-gray-300 pdf-page-button${pageNumber <= 1 ? " disabled" : ""}`}>
@@ -506,6 +582,7 @@ export default function StudentDashboard() {
                         </div>
                     )}
 
+                    {/* Logout Modal */}
                     {showLogoutModal && (
                         <Modal
                             open={showLogoutModal}
@@ -515,6 +592,23 @@ export default function StudentDashboard() {
                             onCancel={() => setShowLogoutModal(false)}
                             saveText="Logout"
                             cancelText="Cancel"
+                        />
+                    )}
+
+                    {/* Device Limit Modal (403) */}
+                    {showDeviceLimitModal && (
+                        <Modal
+                            open={showDeviceLimitModal}
+                            title="Logged out due to device limit"
+                            content={
+                                <div>
+                                    You’ve been logged out because your account reached the device limit.
+                                    Please log in again to continue.
+                                </div>
+                            }
+                            onCancel={handleDeviceLimitOK}   // single “OK” action
+                            cancelText="OK"
+                            showSave={false}
                         />
                     )}
                 </div>
