@@ -17,6 +17,7 @@ export default function Modal({
   saveText = "Save",
   cancelText = "Cancel",
   className,
+  showSave = true,
 }) {
   return (
     <Dialog open={open} onClose={onCancel} maxWidth="xs" fullWidth className={className}>
@@ -26,9 +27,11 @@ export default function Modal({
         <Button className="cancel-button" onClick={onCancel} color="inherit" variant="outlined">
           {cancelText}
         </Button>
-        <Button className="save-button" onClick={onSave} color="primary" variant="contained">
-          {saveText}
-        </Button>
+        {showSave &&
+          <Button className="save-button" onClick={onSave} color="primary" variant="contained">
+            {saveText}
+          </Button>
+        }
       </DialogActions>
     </Dialog>
   );

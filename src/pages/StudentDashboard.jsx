@@ -17,6 +17,16 @@ import { SiStudyverse } from "react-icons/si";
 import { FaSearchPlus, FaSearchMinus, FaSyncAlt } from "react-icons/fa";
 import { FcNext, FcPrevious } from "react-icons/fc";
 
+// MUI Imports for Drawer functionality
+import Box from '@mui/material/Box';
+import Drawer from '@mui/material/Drawer';
+import Button from '@mui/material/Button';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
+import ListItemIcon from '@mui/material/ListItemIcon';
+
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 export default function StudentDashboard() {
@@ -28,7 +38,10 @@ export default function StudentDashboard() {
     const [rotation, setRotation] = useState(0);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const [showMenu, setShowMenu] = useState(false);
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false); // New state for Drawer
     const navigate = useNavigate();
+
+    // --- Authentication and Security Hooks ---
 
     // Redirect to home if not logged in
     useEffect(() => {
@@ -63,6 +76,8 @@ export default function StudentDashboard() {
         document.addEventListener("contextmenu", disableContext);
         return () => document.removeEventListener("contextmenu", disableContext);
     }, []);
+
+    // --- Data Fetching and Handlers ---
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -119,6 +134,7 @@ export default function StudentDashboard() {
             document.body.appendChild(link);
             link.click();
             link.parentNode.removeChild(link);
+            window.URL.revokeObjectURL(url); // Clean up Blob URL
             toast.success("Password generated and CSV downloaded.");
 
             toast.info("Please login again with your new password.");
@@ -143,13 +159,11 @@ export default function StudentDashboard() {
     const getWatermarkText = () => {
         const email = localStorage.getItem("studentEmail") || "";
         const now = new Date();
-
         const datePart = now.toLocaleDateString('en-IN', {
             year: 'numeric',
             month: '2-digit',
             day: '2-digit'
         });
-
         const timePart = now.toLocaleTimeString('en-US', {
             hour: '2-digit',
             minute: '2-digit',
@@ -160,7 +174,40 @@ export default function StudentDashboard() {
         return `${email} - ${datePart} ${timePart} - ${sessionInfo}`;
     };
 
-    // PDF controls
+    const isPdf = (url) => {
+        if (!url) return false;
+        const cleanUrl = url.split("?")[0].toLowerCase();
+        return cleanUrl.endsWith(".pdf");
+    };
+
+    // Consolidated function to handle PDF resource click
+    const handleResourceClick = async (r) => {
+        if (!isPdf(r.url)) return;
+
+        try {
+            const token = localStorage.getItem("token");
+            const res = await API.get(`/student/resource/${r._id}/file`, {
+                responseType: "blob",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const blob = new Blob([res.data], { type: "application/pdf" });
+            const url = window.URL.createObjectURL(blob);
+
+            // Clean up old selectedPdf Blob URL before setting new one
+            if (selectedPdf) window.URL.revokeObjectURL(selectedPdf);
+
+            setPageNumber(1);
+            setScale(1);
+            setRotation(0);
+            setSelectedPdf(url);
+            setIsDrawerOpen(false); // Drawer starts collapsed
+        } catch (err) {
+            toast.error("Failed to load PDF preview.", err);
+        }
+    };
+
+    // --- PDF Controls ---
+
     const handleDocumentLoad = ({ numPages }) => {
         setNumPages(numPages);
         setPageNumber(1);
@@ -170,17 +217,22 @@ export default function StudentDashboard() {
     const handleZoomIn = () => setScale((s) => s + 0.2);
     const handleZoomOut = () => setScale((s) => Math.max(0.6, s - 0.2));
     const handleRotate = () => setRotation((r) => (r + 90) % 360);
+
+    // Updated handleClose to reset PDF viewer state and re-shift resource list
     const handleClose = () => {
         setSelectedPdf(null);
         setPageNumber(1);
         setScale(1);
         setRotation(0);
+        setIsDrawerOpen(false);
     };
 
-    const isPdf = (url) => {
-        if (!url) return false;
-        const cleanUrl = url.split("?")[0].toLowerCase();
-        return cleanUrl.endsWith(".pdf");
+    // --- Drawer Controls ---
+    const toggleDrawer = (open) => (event) => {
+        if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+            return;
+        }
+        setIsDrawerOpen(open);
     };
 
     // Close dropdown if clicked outside
@@ -204,12 +256,39 @@ export default function StudentDashboard() {
         };
     }, [selectedPdf]);
 
-    // Cleanup Blob URLs on close
+    // Cleanup Blob URLs on close (for when component unmounts or selectedPdf changes)
     useEffect(() => {
+        // Cleanup function runs when component unmounts or before selectedPdf changes
         return () => {
-            if (selectedPdf) window.URL.revokeObjectURL(selectedPdf);
+            // Check if selectedPdf exists and is a Blob URL (e.g., starts with blob:) before revoking
+            if (selectedPdf && selectedPdf.startsWith('blob:')) window.URL.revokeObjectURL(selectedPdf);
         };
     }, [selectedPdf]);
+
+    // Drawer Content Component
+    const ResourceDrawerContent = (
+        <Box sx={{ width: 350 }} role="presentation">
+            <div className="p-4">
+                <h3 className="text-xl font-bold mb-4">Available Resources</h3>
+                {resources.length === 0 ? (
+                    <p className="text-gray-500 italic">No resources found.</p>
+                ) : (
+                    <List>
+                        {resources.map((r) => (
+                            <ListItem key={r._id} disablePadding className="border-b border-gray-200">
+                                <ListItemButton onClick={() => handleResourceClick(r)}>
+                                    <ListItemText primary={r.title.replace(/\.pdf$/i, "")} />
+                                    <ListItemIcon className="min-w-0">
+                                        <SiStudyverse className="text-blue-600" />
+                                    </ListItemIcon>
+                                </ListItemButton>
+                            </ListItem>
+                        ))}
+                    </List>
+                )}
+            </div>
+        </Box>
+    );
 
     return (
         <>
@@ -263,9 +342,10 @@ export default function StudentDashboard() {
                     </div>
                 </nav>
 
-                {/* Resource Section */}
-                <div className="w-[80%] absolute left-[10%]">
-                    <div className="p-8">
+                {/* Main Content Area: Conditional Rendering */}
+                {!selectedPdf ? (
+                    // --- Initial View: Full Resource List ---
+                    <div className="w-[80%] mx-auto p-8">
                         <div className="flex justify-between items-center mb-[1.5rem]">
                             <h2 className="text-2xl font-bold">My Resources</h2>
                         </div>
@@ -284,22 +364,9 @@ export default function StudentDashboard() {
                                         {r.url ? (
                                             isPdf(r.url) ? (
                                                 <button
-                                                    onClick={async () => {
-                                                        try {
-                                                            const token = localStorage.getItem("token");
-                                                            const res = await API.get(`/student/resource/${r._id}/file`, {
-                                                                responseType: "blob",
-                                                                headers: { Authorization: `Bearer ${token}` },
-                                                            });
-                                                            const blob = new Blob([res.data], { type: "application/pdf" });
-                                                            const url = window.URL.createObjectURL(blob);
-                                                            setPageNumber(1);
-                                                            setScale(1);
-                                                            setRotation(0);
-                                                            setSelectedPdf(url);
-                                                        } catch (err) {
-                                                            toast.error("Failed to load PDF preview.", err);
-                                                        }
+                                                    onClick={(e) => {
+                                                        e.stopPropagation(); // Prevents accidental parent click if any
+                                                        handleResourceClick(r);
                                                     }}
                                                     className="text-blue-600 border-none bg-transparent text-[#3091c2] cursor-pointer text-[0.9rem]"
                                                 >
@@ -316,23 +383,47 @@ export default function StudentDashboard() {
                             </div>
                         )}
                     </div>
+                ) : (
+                    // --- PDF Viewer Active View ---
+                    <div className="flex relative h-[calc(100vh-64px)]">
 
-                    {/* PDF Viewer Modal */}
-                    {selectedPdf && (
-                        <div className="inset-0 bg-black/70 flex items-center z-50 justify-center">
-                            <div className="pdf-modal">
-                                {/* Header */}
-                                <div className="pdf-modal-header">
-                                    <h3 className="font-semibold">PDF Preview</h3>
+                        {/* Drawer for Collapsed Resource List */}
+                        <Drawer anchor="left" open={isDrawerOpen} onClose={toggleDrawer(false)}>
+                            {ResourceDrawerContent}
+                        </Drawer>
+
+                        {/* PDF Viewer Content (main area) */}
+                        <div className="flex-1 flex flex-col items-center justify-center p-4">
+
+                            {/* Drawer Toggle Button */}
+                            <div className="w-[90%] flex justify-start mb-4 max-w-[1200px]">
+                                <Tooltip title="Toggle Resources" arrow>
+                                    <Button
+                                        onClick={toggleDrawer(true)}
+                                        variant="contained"
+                                        startIcon={<SiStudyverse />}
+                                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                                    >
+                                        Resources
+                                    </Button>
+                                </Tooltip>
+                            </div>
+
+                            {/* PDF Viewer Container */}
+                            <div className="pdf-modal-fullscreen w-[90%] h-[90%] max-w-[1200px] max-h-[calc(100vh-160px)] shadow-2xl rounded-lg bg-white flex flex-col">
+                                {/* Header (with Close button) */}
+                                <div className="pdf-modal-header p-4 flex justify-between items-center border-b">
+                                    <h3 className="font-semibold text-lg">PDF Preview</h3>
                                     <button
                                         onClick={handleClose}
-                                        className="bg-transparent border-none text-[2.5rem] cursor-pointer"
+                                        className="bg-transparent border-none text-[2.5rem] cursor-pointer text-gray-500 hover:text-gray-800 transition leading-none"
                                     >
                                         ×
                                     </button>
                                 </div>
-                                {/* PDF Container */}
-                                <div className="pdf-modal-content" onContextMenu={(e) => e.preventDefault()}>
+
+                                {/* PDF Content Area */}
+                                <div className="pdf-modal-content flex-1 overflow-auto relative" onContextMenu={(e) => e.preventDefault()}>
                                     {/* Watermark Overlay */}
                                     <div className="watermark-overlay">
                                         <div className="watermark-grid">
@@ -343,12 +434,12 @@ export default function StudentDashboard() {
                                             ))}
                                         </div>
                                     </div>
-                                    <div className="pdf-scroll-wrapper flex justify-center">
+                                    <div className="pdf-scroll-wrapper flex justify-center py-4">
                                         <Document
                                             file={memoizedFile}
                                             onLoadSuccess={handleDocumentLoad}
                                             onLoadError={(err) => console.error("PDF Load Error:", err)}
-                                            className="flex flex-col items-center gap-4 py-4 relative z-0"
+                                            className="flex flex-col items-center gap-4 relative z-0"
                                         >
                                             {numPages && (
                                                 <Page
@@ -363,6 +454,7 @@ export default function StudentDashboard() {
                                         </Document>
                                     </div>
                                 </div>
+
                                 {/* Footer Controls */}
                                 <div className="pdf-modal-footer">
                                     <div className="flex items-center gap-[1rem]">
@@ -413,8 +505,8 @@ export default function StudentDashboard() {
                                 </div>
                             </div>
                         </div>
-                    )}
-                </div>
+                    </div>
+                )}
 
                 {/* Logout Modal */}
                 {showLogoutModal && (
@@ -428,8 +520,6 @@ export default function StudentDashboard() {
                         cancelText="Cancel"
                     />
                 )}
-
-                {/* Reset Password Modal removed as per requirements */}
             </div>
         </>
     );
