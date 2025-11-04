@@ -181,7 +181,7 @@ export default function BatchesView() {
   // AG Grid config
   const columnDefs = useMemo(
     () => [
-      { headerName: "Batch Name", field: "title", flex: 1, filter: "agTextColumnFilter", headerClass: "admin-table-header"  },
+      { headerName: "Batch Name", field: "title", flex: 1, filter: "agTextColumnFilter", headerClass: "admin-table-header" },
       {
         headerName: "Actions",
         flex: 1,
@@ -226,6 +226,11 @@ export default function BatchesView() {
     sortable: true,
     filter: true,
   });
+
+  const handleCloseAddBatchModal = () => {
+    setShowAddModal(false);
+    setNewBatchTitle("");
+  };
 
   return (
     <>
@@ -279,7 +284,7 @@ export default function BatchesView() {
               </form>
             }
             onSave={() => document.getElementById("add-batch-form").requestSubmit()}
-            onCancel={() => setShowAddModal(false)}
+            onCancel={handleCloseAddBatchModal}
             saveText="Add"
             cancelText="Cancel"
           />
@@ -334,7 +339,7 @@ export default function BatchesView() {
                               alignItems: 'center',
                               gap: 8
                             }}
-                            className="add-resource-upload-box"
+                              className="add-resource-upload-box"
                             >
                               <FaFilePdf style={{ fontSize: '2.2rem', color: '#dc2626', marginBottom: 4 }} />
                               <span style={{ fontWeight: 500 }}>Click or drag PDF(s) here</span>

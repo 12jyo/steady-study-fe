@@ -272,6 +272,12 @@ export default function StudentsView() {
         }
     };
 
+    const handleCloseAddStudentModal = () => {
+        setShowAddModal(false);
+        setName("");
+        setEmail("");
+    };
+
     // --- AG Grid Columns ---
     const columnDefs = useMemo(
         () => [
@@ -444,7 +450,7 @@ export default function StudentsView() {
                         onSave={() =>
                             document.getElementById("add-student-form").requestSubmit()
                         }
-                        onCancel={() => setShowAddModal(false)}
+                        onCancel={handleCloseAddStudentModal}
                         saveText="Download Password"
                         cancelText="Cancel"
                     />
