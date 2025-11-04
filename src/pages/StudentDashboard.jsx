@@ -373,11 +373,11 @@ export default function StudentDashboard() {
     const ResourceDrawerContent = (
         <Box sx={{ width: 350 }} role="presentation">
             <div className="p-4">
-                <h3 className="text-xl font-bold mb-4">Available Resources</h3>
+                <h3 className="text-xl font-bold mb-4 ml-[1rem]">Available Resources</h3>
                 {resources.length === 0 ? (
                     <p className="text-gray-500 italic">No resources found.</p>
                 ) : (
-                    <List>
+                    <List className="!ml-[0.6rem]">
                         {resources.map((r) => (
                             <ListItem key={r._id} disablePadding className="border-b border-gray-200">
                                 <ListItemButton onClick={() => handleResourceClick(r)}>
